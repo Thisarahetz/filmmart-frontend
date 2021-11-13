@@ -1,0 +1,67 @@
+.navbar{
+    color: white;
+    font-size: 12px;
+
+    .contaner{
+        padding: 0px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 50px;
+       
+        .left{
+            display: flex;
+            align-items: center;
+            img{
+                height: 25px;
+                padding-right: 12px;
+    
+            }
+            .manubar{
+                cursor:pointer;
+                padding-right:10px;
+                color: white;
+            }
+        }
+        
+        .searchbar{
+            display: flex;
+            align-items: center;
+            height: 35px;
+            color:black ;
+            background-color:rgb(255, 251, 0);
+             /* Extra small devices (phones, 600px and down) */
+            @media only screen and (max-width: 600px) {
+                width: 150px;
+            }
+
+            /* Small devices (portrait tablets and large phones, 600px and up) */
+            @media only screen and (min-width: 600px) {
+                width: 250px;
+            }
+
+            /* Medium devices (landscape tablets, 768px and up) */
+            @media only screen and (min-width: 768px) {
+                width: 300px;
+            }
+
+            /* Large devices (laptops/desktops, 992px and up) */
+            @media only screen and (min-width: 992px) {
+                width: 900px;
+            }
+
+            /* Extra large devices (large laptops and desktops, 1200px and up) */
+            @media only screen and (min-width: 1200px) {
+                width:1300px
+            } 
+        }
+        .right{
+            display: flex;
+            align-items: center;
+            padding-right: 20px;
+        }
+        
+
+    }
+    
+}
