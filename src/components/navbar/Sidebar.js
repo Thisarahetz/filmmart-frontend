@@ -80,9 +80,7 @@ export default function Sidebar() {
                 {list(anchor)}
               </SwipeableDrawer>
             </React.Fragment>
-          ))}
-          
-          
+          ))}         
         </div>
       );
     }
