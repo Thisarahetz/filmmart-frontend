@@ -14,28 +14,19 @@ const Navbar = () => {
         <div className="navbar">
             <div className="contaner">
                 <div className="left">
-                <img src="https://i.ibb.co/v1MXJ2B/images.jpg" alt="logo"/>
-               
-                    
-                <Sidebar className="navbar"/>
-                    
+                <img src="https://i.ibb.co/v1MXJ2B/images.jpg" alt="logo"/>               
+                <Sidebar className="navbar"/>                   
                     <Paper
                     component="form"
                     className="searchbar"
-                    >
-                    
+                    >                   
                     <InputBase
                         sx={{ ml: 1, flex: 1 }}
                         placeholder="Search"
-                        inputProps={{ 'aria-label': 'search' }}
-                        
-                    />
-                    
-                    <SearchIcon />
-                    
-                    
-                    </Paper>
-                                            
+                        inputProps={{ 'aria-label': 'search' }}                        
+                    />                   
+                    <SearchIcon />                 
+                    </Paper>                                            
                 </div>
                 <div className="right">
                 <FacebookIcon/>
