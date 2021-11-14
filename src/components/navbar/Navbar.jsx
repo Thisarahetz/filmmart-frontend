@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {  useState } from "react";
 import "./navbar.scss"
 import SearchIcon from '@mui/icons-material/Search';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -10,8 +10,15 @@ import InputBase from '@mui/material/InputBase';
 import Sidebar from './Sidebar.js';
 
 const Navbar = () => {
+    const [isScrolled,setIsScrolled] = useState(false);
+
+    window.onscroll = () => {
+        setIsScrolled(window.pageYOffset === 0 ? false : true);
+        return () => {window.onscroll = null};
+    }
+
     return (
-        <div className="navbar">
+        <div className={isScrolled ? "navbar scollled": "navbar"}>
             <div className="contaner">
                 <div className="left">
                 <img src="https://i.ibb.co/v1MXJ2B/images.jpg" alt="logo"/>               
@@ -29,7 +36,7 @@ const Navbar = () => {
                     </Paper>                                            
                 </div>
                 <div className="right">
-                <FacebookIcon/>
+                <FacebookIcon className="rightItem"/>
                 <YouTubeIcon/>
                 <TwitterIcon/>
                 <InstagramIcon/>
