@@ -18,6 +18,7 @@
             top: 0;
             bottom: 0;
             margin: auto;
+            cursor: pointer;
         
         &.left{
             left:0;
@@ -30,6 +31,8 @@
             margin-left: 50px;
             display: flex;
             width:max-content;
+            margin-top: 10px;
+            transform: translateX(0px);
         }
     }
     
