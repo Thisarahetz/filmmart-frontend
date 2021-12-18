@@ -1,8 +1,7 @@
 # Getting Started with Create React App
 
 #UI Disign
-![WhatsApp Image 2021-11-08 at 13 18 17](https://user-images.githubusercontent.com/43540833/141612898-b23af476-7907-4b23-9088-fd00a042acb4.jpeg)
-
+<img src="https://user-images.githubusercontent.com/43540833/141612898-b23af476-7907-4b23-9088-fd00a042acb4.jpeg" alt="1q0NkU" border="0" width="100px" hight="100px"/> 
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
