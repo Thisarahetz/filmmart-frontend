@@ -1,7 +1,7 @@
 # Getting Started with Create React App
 
 #UI Disign
-<img src="https://user-images.githubusercontent.com/43540833/141612898-b23af476-7907-4b23-9088-fd00a042acb4.jpeg" alt="1q0NkU" border="0" width="100px" hight="100px"/> 
+<img src="https://user-images.githubusercontent.com/43540833/141612898-b23af476-7907-4b23-9088-fd00a042acb4.jpeg" alt="1q0NkU" border="0" width="600px" hight="500px"/> 
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
