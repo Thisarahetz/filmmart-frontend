@@ -10,6 +10,7 @@ function Home() {
             <Features />
             <List />
             <List />
+            <List />
         </div>
     )
 }
