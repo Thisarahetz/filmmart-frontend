@@ -2,7 +2,7 @@
 
 #UI Disign
 <div style={{display:flex;}}>
-<img src="https://user-images.githubusercontent.com/43540833/141612898-b23af476-7907-4b23-9088-fd00a042acb4.jpeg" alt="1q0NkU" border="0" width="800px" hight="500px"/> 
+<img src="https://user-images.githubusercontent.com/43540833/141612898-b23af476-7907-4b23-9088-fd00a042acb4.jpeg" alt="1q0NkU" border="0" width="400px" hight="800px"/> 
 <img src="https://user-images.githubusercontent.com/43540833/146638099-3611174f-8139-419c-8069-e2de3024c1c3.png" alt="1q0NkU" border="0" width="400px" hight="500px"/> 
 </div>
 
