@@ -1,0 +1,45 @@
+.bgcolour{
+    background-color: black;
+    padding:10px;
+    .bgsqure{
+        display: flex;
+        flex-direction: column;
+        color: white;
+        background-color: #1a1a1a;
+        padding-left: 20px;
+        .hedar{
+            color: #d0b15f;
+            font-size: 22px;
+            font-weight: bold;
+            align-items: center;
+            text-align: center;
+        }
+        .filmThmbnil{
+            text-align: center;
+           img{
+            width: 700px;
+            height: 250px;
+           }
+        }
+        .video-container{
+            display: flex;
+            flex-direction: row;
+            align-items:initial;
+            padding-bottom: 20px;
+            .desc{
+                padding-left: 40px;
+            }
+            .subheder{
+                padding-bottom: 10px;
+                font-size: 12px;
+                color: #549bd6
+            }
+            .martRating{
+                color: #d0b15f
+            }
+        }
+        .dawnlodtop{
+            text-align: center
+        }
+    }
+}
