@@ -1,4 +1,4 @@
-import './register.scss'
+import './login.scss'
 import {useState,useRef} from 'react'
 
 export default function Register() {
@@ -16,7 +16,7 @@ export default function Register() {
   };
   
     return (
-          <div className="register">
+          <div className="login ">
             <div className="top">
             <div className="wrapper">
             <img className="logo"
@@ -27,25 +27,19 @@ export default function Register() {
             </div>
             </div>
             <div className="container">
-            <h1>Register</h1>
-            <h2>If you want To know the upcoming movies</h2>
-            <p>Get register</p>
-            {!email ? (
-              <div className="input">
-                <input type="email" placeholder="email address" ref={emailRef} />
-                <button className="registerButton" onClick={handleStart}>
-                  Register
-                </button>
-              </div>
-            ) : (
-              <form className="input">
-                <input type="password" placeholder="password" ref={passwordRef} />
-                <button className="registerButton" onClick={handleFinish}>
-                  Start
-                </button>
+            <form>
+              <h1>Sign In</h1>
+              <input type="email" placeholder="Email or phone number"/>
+              <input type="password" placeholder="Password"/>
+              <button className="loginButton">Sign in</button>
+              <span>
+                New to Site? <b>Sign up now.</b>
+              </span>
+              <small>
+              This page is protected by Google reCAPTCHA to ensure you're not a
+                bot. <b>Learn more</b>.
+              k</small>
               </form>
-            )}
-            
             </div>
           </div>  
     )
