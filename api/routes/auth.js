@@ -34,16 +34,18 @@ router.post('/login',async (req, res) => {
         originalPassword !== req.body.password &&
         res.status(401).json("wrong password or username!");
         const{password,...info}=user._doc; //hidden password
-        res.status(200).json(info);
-
         /*
+        *Create new server
         *Synchronous Sign with default (HMAC SHA256)
         */
         const token = jwt.sign(
             { id: user._id, 
-            isAdmin:user.isAdmin},
+            isAdmin:user.isAdmin,
+            name: user.name},
             process.env.SECRET_KEY,
             {expiresIn:"5d"});
+        //responce
+        res.status(200).json({...info,token});
 
     }catch(err){
         console.log(err)

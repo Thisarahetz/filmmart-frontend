@@ -2,7 +2,8 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const auth = require('./routes/auth');
+const auth = require('./routes/auth'); //Register and login function
+const usersRouter = require('./routes/users');
 
 
 dotenv.config();
@@ -29,5 +30,6 @@ app.use(express.json());
 Router
 */
 app.use("/api/auth",auth);
+app.use("/api/users",usersRouter);
 
 
