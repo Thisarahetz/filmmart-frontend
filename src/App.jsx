@@ -1,11 +1,29 @@
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate
+} from "react-router-dom";
+
 import "./app.scss";
 import Home from "./pages/home/Home";
-//import Detail from "./pages/details/Details";
-//import Register from "./pages/register/Register";
+import Detail from "./pages/details/Details";
+import Register from "./pages/register/Register";
 //import Login from "./pages/login/Login";
 
 const App = () => {
-  return <Home/>;
+  const user = false;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route exact path="/" element={  <Home />  }/>
+        <Route path="/movies" element={<Home type="movies" />} />
+        <Route path="/series" element={<Home type="series" />} />
+        <Route path="/details" element = {user ? <Detail/> : <Navigate to="register"/> } />
+        <Route path="/register" element = {<Register />} />
+      </Routes>
+    </BrowserRouter>
+  )
 };
 
 export default App;

@@ -25,7 +25,7 @@ export default function Details() {
               <div class="video-container">
                 <iframe
                     title="This is a unique title" 
-                    src="//www.youtube.com/embed/vi9m0JRo71I?autoplay=1"
+                    src="//www.youtube.com/embed/vi9m0JRo71I?autoPlay=1"
                     width="680"
                     height="315"
                 ></iframe>

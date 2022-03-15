@@ -86,7 +86,7 @@ router.get("/",verify, async(req,res)=>{
 //GET USER STATS
 router.get("/stats", async (req, res) => {
     const today = new Date();
-    const latYear = today.setFullYear(today.setFullYear() - 1);
+     today.setFullYear(today.setFullYear() - 1);
   
     try {
       const data = await User.aggregate([

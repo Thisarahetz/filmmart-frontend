@@ -14,6 +14,8 @@ import MovieIcon from '@mui/icons-material/Movie';
 import TheatersIcon from '@mui/icons-material/Theaters';
 import FiberNewIcon from '@mui/icons-material/FiberNew';
 import GroupIcon from '@mui/icons-material/Group';
+import { Link } from "react-router-dom";
+import "./sidebar.scss"
 
 export default function Sidebar() {
     const [state, setState] = React.useState({
@@ -43,14 +45,37 @@ export default function Sidebar() {
           onKeyDown={toggleDrawer(anchor, false)}
         >
           <List>
-            {['Homepage', 'Serires', 'Movies', 'New populer'].map((text, index) => (
-              <ListItem button key={text}>
+              <Link to="/" className="link">
+              <ListItem button>
                 <ListItemIcon>
-                  {index === 0 ? <HomeIcon /> : index===1 ? <TheatersIcon /> : index===2 ? <MovieIcon /> : <FiberNewIcon /> }
+                <HomeIcon />
                 </ListItemIcon>
-                <ListItemText primary={text} />
+                <ListItemText>Homepage</ListItemText>
               </ListItem>
-            ))}
+              </Link>
+              <Link to="/series"  className="link">
+              <ListItem button>
+              <ListItemIcon>
+              <TheatersIcon />
+              </ListItemIcon>
+              <ListItemText>Serires</ListItemText>
+            </ListItem>
+            </Link>
+            <Link to="/movies" className="link">
+            <ListItem button>
+            <ListItemIcon>
+            <MovieIcon />
+            </ListItemIcon>
+            <ListItemText>Movies</ListItemText>
+          </ListItem>
+          </Link>
+          <ListItem button>
+          <ListItemIcon>
+          <FiberNewIcon />
+          </ListItemIcon>
+          <ListItemText>New populer</ListItemText>
+        </ListItem>
+            
           </List>
           <Divider />
           <List>
@@ -65,7 +90,7 @@ export default function Sidebar() {
           </List>
         </Box>
       );
-    
+      
       return (
         <div>
           {['left'].map((anchor) => (
