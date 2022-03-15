@@ -2,8 +2,10 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const auth = require('./routes/auth'); //Register and login function
-const usersRouter = require('./routes/users');
+const auth = require('./routes/auth'); //Register and login authontication
+const usersRouter = require('./routes/users'); // update and delete and getAll and find
+const moviesRouter = require('./routes/movies'); //create movies add,delete,
+const listRouter = require('./routes/list'); //list crud
 
 
 dotenv.config();
@@ -27,9 +29,10 @@ mongoose.connect(process.env.MONGO_URL,{
 app.use(express.json());
 
 /*
-Router
+Routers
 */
 app.use("/api/auth",auth);
 app.use("/api/users",usersRouter);
-
+app.use("/api/movies",moviesRouter);
+app.use("/api/list",listRouter);
 

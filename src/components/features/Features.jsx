@@ -4,12 +4,13 @@ import FiberNewIcon from '@mui/icons-material/FiberNew';
 
 /*home (type)props pass main componet*/
 const Features = ({type}) => {
+    //console.log(type.type)
     return (
         <>
         <div className="features">
-        {type&&(
-           <div className="category">
-                <span>{type==='movies' ? 'Movie' : 'Series'}</span>
+        { type.type &&(
+        <div className="category">
+                <span>{type.type==="movies" ? 'Movie' : 'Series'}</span>
                 <select name="genre" id="genre" >
                 <option>Genre</option>
                 <option value="adventure">Adventure</option>
@@ -22,7 +23,7 @@ const Features = ({type}) => {
                 <option value="sci-fi">Sai-Fi</option>
                 <option value="thriller">Thriller</option>
                 </select>
-           </div>
+        </div>
         )}
         <img src="https://i.ibb.co/kDRSfGg/MTRA-com.png" alt=""/>
         <div className="description">
