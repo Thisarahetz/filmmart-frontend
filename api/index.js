@@ -7,7 +7,9 @@ const usersRouter = require('./routes/users'); // update and delete and getAll a
 const moviesRouter = require('./routes/movies'); //create movies add,delete,
 const listRouter = require('./routes/list'); //list crud
 
-
+const cors = require('cors');
+//Enable CORE
+app.use(cors());
 dotenv.config();
 
 /*
@@ -16,6 +18,7 @@ Run Server
 app.listen(8090,() => {
     console.log("backend server is working");
 })
+
 /*  
 connect mongoose server
 */
