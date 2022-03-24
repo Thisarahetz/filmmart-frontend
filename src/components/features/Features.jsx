@@ -10,7 +10,7 @@ const Features = ({type}) => {
         <div className="features">
         { type.type &&(
         <div className="category">
-                <span>{type.type==="movies" ? 'Movie' : 'Series'}</span>
+                <span>{type.type==="movie" ? 'Movie' : 'Series'}</span>
                 <select name="genre" id="genre" >
                 <option>Genre</option>
                 <option value="adventure">Adventure</option>

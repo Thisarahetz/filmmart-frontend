@@ -18,7 +18,7 @@ export default function ListItem({index}) {
             <img src="https://i.ibb.co/LkVfFwd/1q0NkU.jpg" alt="1q0NkU" border="0"/>  
             {isHovered && (
 <>
-            <video src={trailer} autoplay="true" loop />
+            <video src={trailer} autoPlay={true} loop />
             <div className="itemUperInfo">
                 <div className="itemInfo">
                     <div className="ratingIcons">

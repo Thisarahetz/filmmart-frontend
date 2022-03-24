@@ -7,8 +7,8 @@ import {useState,useEffect} from 'react'
 import api from '../../api/post'
 
 function Home({type}) {
-    const [lists,getList] = useState([]);
-    const [genre ,getGenders] = useState(null);
+    const [lists,setList] = useState([]);
+    const [genre ,setGenders] = useState(null);
 
     useEffect(() => {
             const getRandomLists = async() =>{
@@ -20,7 +20,8 @@ function Home({type}) {
                         "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMjJlNmNiM2ZlZDdlM2NjNzVhMDhhZiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTY0NzY5Nzc5NSwiZXhwIjoxNjQ4MTI5Nzk1fQ.X6oED197Q8-BDHs_7OnHy1-WCxYqf3IdSR-StasW79I"
                 }}
             );
-            console.log(res)
+            setList(res.data)
+            console.log(res.data)
         } catch (error) {
             console.log(error)
         }
@@ -28,13 +29,13 @@ function Home({type}) {
         getRandomLists();
     },[type,genre])
 
-    return (
+    return ( 
         <div className="home">
             <Navbar/>
             <Features type={{type}}/>
-            <List />
-            <List />
-            <List />
+            {lists.map((list,index) => (
+                <List key={index} type={list}/>
+            ))}
         </div>
     )
 }
