@@ -12,7 +12,7 @@ import Register from "./pages/register/Register";
 //import Login from "./pages/login/Login";
 
 const App = () => {
-  const user = false;
+  const user = true;
   return (
     <BrowserRouter>
       <Routes>
