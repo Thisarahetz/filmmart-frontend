@@ -8,6 +8,7 @@ export default function List(list) {
     const listRef = useRef();
     const [isMoved,setMoved] = useState(false);
     const [slideCounter, setslideCounter] = useState(0);
+
     const handleClick = (direction) => {
         setMoved(true);
         let distance = listRef.current.getBoundingClientRect().x - 50
@@ -32,7 +33,7 @@ export default function List(list) {
                 style={{display: !isMoved && "none"}} />
             <div className="container" ref={listRef}>
             {
-                list.map((item, index)=>(
+                list.type.content.map((item, index)=>(
                     <ListItem index={index} item={item}/>
                 ))
             }

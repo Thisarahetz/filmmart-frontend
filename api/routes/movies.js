@@ -24,13 +24,13 @@ router.post("/",verify, async(req,res)=>{
 router.put("/:id",verify, async(req,res)=>{
     if(req.user.isAdmin){
             try{
-                 const updateMovies = await Movie.findByIdAndUpdate(
-                     req.params.id,
-                     {
-                         $set:req.body,
-                     },
-                     { new:true }
-                 );
+                const updateMovies = await Movie.findByIdAndUpdate(
+                    req.params.id,
+                    {
+                        $set:req.body,
+                    },
+                    { new:true }
+                );
                 res.status(201).json(updateMovies);
             }catch(err){
                 res.status(500).json(err);
@@ -47,11 +47,11 @@ router.put("/:id",verify, async(req,res)=>{
 router.delete("/:id",verify, async(req,res)=>{
     if(req.user.isAdmin){
             try{
-                 const movies = await Movie.findByIdAndDelete(req.params.id);
-                 if(movies){
+                const movies = await Movie.findByIdAndDelete(req.params.id);
+                if(movies){
                     res.status(201).json("Delete Movies!!");
-                 }
-                 res.status(201).json("movie is not found");
+                }
+                res.status(201).json("movie is not found");
             }catch(err){
                 res.status(500).json(err);
             }
@@ -64,11 +64,11 @@ router.delete("/:id",verify, async(req,res)=>{
 /*
 *@Find Movies
 */
-router.get("find/:id", async(req,res)=>{
+router.get("/find/:id", async(req,res)=>{
             try{
-                 const getMovies =await Movie.findById(
-                     req.params.id
-                 );
+                const getMovies =await Movie.findById(
+                    req.params.id
+                );
                 res.status(201).json(getMovies);
             }catch(err){
                 res.status(500).json(err);
@@ -98,20 +98,19 @@ router.get("/rendam",verify, async(req,res)=>{
     }catch(err){
         res.status(500).json(err);
     }
-    
+
 });
 
 /*
 *@Find Movies
 */
-router.get("/", verify , async(req,res)=>{
+router.get("/", async(req,res)=>{
     try{
-         const getMovies =await Movie.find();
+        const getMovies =await Movie.find();
         res.status(201).json(getMovies.reverse());
     }catch(err){
         res.status(500).json(err);
     }
-
 });
 
 module.exports = router
