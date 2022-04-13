@@ -12,17 +12,17 @@ router.put("/:id",verify, async(req,res)=>{
         //console.log(req)
         if(req.body.password) {
             req.body.password = CryptoJS.AES.encrypt(
-              req.body.password,
-              process.env.SECRET_KEY
-             ).toString();
+            req.body.password,
+            process.env.SECRET_KEY
+            ).toString();
             }
             try{
                 const updateUser = await User.findByIdAndUpdate(
-                   req.params.id,
-                   {
-                       $set: req.body,
-                   },
-                   {new:true}     
+                req.params.id,
+                {
+                    $set: req.body,
+                },
+                {new:true}     
                 );
                 res.status(200).json(updateUser);
             }catch(err){
@@ -41,7 +41,7 @@ router.delete("/:id",verify, async(req,res)=>{
     if(req.user.id === req.params.id || req.user.isAdmin){
         //console.log(req)
             try{
-                 await User.findByIdAndDelete(req.params.id);
+                await User.findByIdAndDelete(req.params.id);
                 res.status(200).json("User Has been deleted");
             }catch(err){
                 res.status(500).json(err);
@@ -72,12 +72,14 @@ router.get("/",verify, async(req,res)=>{
     const query = req.query.new;
     if(req.user.isAdmin){
         //console.log(req)
-            try{
-                 const user = query ? await User.find().sort(-1).limit(10) : await User.find();
-                res.status(200).json(user);
-            }catch(err){
-                res.status(500).json(err);
-            }
+        try {
+            const users = query
+            ? await User.find().sort({ _id: -1 }).limit(5)
+            : await User.find();
+            res.status(200).json(users);
+        } catch (err) {
+            res.status(500).json(err);
+        }
     }else{
         res.status(403).json("You are not allowed see all users!!")
     }
@@ -86,28 +88,28 @@ router.get("/",verify, async(req,res)=>{
 //GET USER STATS
 router.get("/stats", async (req, res) => {
     const today = new Date();
-     today.setFullYear(today.setFullYear() - 1);
-  
+    today.setFullYear(today.setFullYear() - 1);
+
     try {
-      const data = await User.aggregate([
+    const data = await User.aggregate([
         {
-          $project: {
+        $project: {
               //$month
             month: { $month: "$createdAt" },
-          },
+        },
         },
         {
-          $group: {
+        $group: {
             _id: "$month",
             total: { $sum: 1 },
-          },
         },
-      ]);
-      res.status(200).json(data)
+        },
+    ]);
+    res.status(200).json(data)
     } catch (err) {
-      res.status(500).json(err);
+    res.status(500).json(err);
     }
-  });
+});
 
 
 module.exports = router
