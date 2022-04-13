@@ -17,7 +17,7 @@ function Home({type}) {
                 {
                     headers: {
                     token:
-                        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMjJlNmNiM2ZlZDdlM2NjNzVhMDhhZiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTY0OTE3NDgxNSwiZXhwIjoxNjQ5NjA2ODE1fQ.H8Bk8ZW53JOiV6xRykWsKsRVppXnDXghWCycbz3JRXQ"
+                        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMjJlNmNiM2ZlZDdlM2NjNzVhMDhhZiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTY0OTY0NjUzMSwiZXhwIjoxNjUwMDc4NTMxfQ.r740BTGDcML3Jxk_5cxSHML4N7kyM1nwhiPE11JSDc8"
                 }}
             );
             setList(res.data)
