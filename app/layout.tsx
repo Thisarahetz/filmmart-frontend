@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
 import { Suspense } from 'react';
+import Script from 'next/script';
 import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import Navbar from '@/components/features/navbar/Navbar';
@@ -35,6 +36,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={roboto.variable}>
       <body className="bg-black text-white antialiased font-sans">
+        {process.env.NEXT_PUBLIC_ADSENSE_PUB_ID && (
+          <Script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_PUB_ID}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        )}
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <a
             href="#main-content"

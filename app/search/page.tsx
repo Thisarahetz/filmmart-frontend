@@ -7,6 +7,7 @@ import { Search, Star, Film, Tv } from 'lucide-react';
 import { searchMovies } from '@/lib/data/search';
 import { resolveQualityBadge } from '@/lib/utils/quality';
 import type { Movie } from '@/types';
+import AdBanner from '@/components/ads/AdBanner';
 
 interface Props {
   searchParams: Promise<{ q?: string; type?: string }>;
@@ -134,6 +135,15 @@ export default async function SearchPage({ searchParams }: Props) {
           </div>
         )}
       </div>
+
+      {/* Ad above results */}
+      {query && (
+        <AdBanner
+          slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SEARCH ?? ''}
+          format="horizontal"
+          className="mb-6"
+        />
+      )}
 
       {/* Results grid */}
       {!query ? (

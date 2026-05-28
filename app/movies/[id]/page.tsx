@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { serialize } from '@/lib/utils';
 import type { Movie as MovieType } from '@/types';
+import AdBanner from '@/components/ads/AdBanner';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -136,6 +137,13 @@ export default async function MovieDetailPage({ params }: Props) {
           {movie.desc && (
             <p className="text-gray-300 leading-relaxed mb-8">{movie.desc}</p>
           )}
+
+          {/* Ad between description and trailer */}
+          <AdBanner
+            slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_DETAIL ?? ''}
+            format="horizontal"
+            className="mb-8"
+          />
 
           {/* Trailer + info row */}
           <div className="flex flex-col lg:flex-row gap-8">

@@ -1,9 +1,11 @@
 export const dynamic = 'force-dynamic';
 
+import { Fragment } from 'react';
 import type { Metadata } from 'next';
 import { getTrendingMovies, getEnrichedLists } from '@/lib/data/lists';
 import MovieList from '@/components/features/movies/MovieList';
 import TrendingSlider from '@/components/features/slider/TrendingSlider';
+import AdBanner from '@/components/ads/AdBanner';
 
 export const metadata: Metadata = {
   title: 'Filmmart – Movies & Series',
@@ -30,7 +32,15 @@ export default async function HomePage({ searchParams }: Props) {
   return (
     <div className="bg-black min-h-screen">
       <TrendingSlider movies={trendingMovies} title="Trending Now" />
-      <div className="pb-10 mt-4">
+
+      {/* Banner ad below trending slider */}
+      <AdBanner
+        slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_BANNER ?? ''}
+        format="horizontal"
+        className="mx-4 lg:mx-6 my-4"
+      />
+
+      <div className="pb-10">
         <div className="space-y-4">
           {lists.length === 0 ? (
             <p className="text-center text-gray-500 py-16">
@@ -41,7 +51,18 @@ export default async function HomePage({ searchParams }: Props) {
               .
             </p>
           ) : (
-            lists.map((list) => <MovieList key={list._id} list={list} />)
+            lists.map((list, i) => (
+              <Fragment key={list._id}>
+                <MovieList list={list} />
+                {(i + 1) % 3 === 0 && i < lists.length - 1 && (
+                  <AdBanner
+                    slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_FEED ?? ''}
+                    format="rectangle"
+                    className="mx-4 lg:mx-6"
+                  />
+                )}
+              </Fragment>
+            ))
           )}
         </div>
       </div>
