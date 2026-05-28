@@ -1,4 +1,21 @@
+# deps
 node_modules
-**/node_modules
 
-*.env
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# env files — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# debug
+npm-debug.log*
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gold: #f5c517;
+  --color-gold-dim: #d0b15f;
+  --color-card: #1a1a1a;
+  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Fluid base font size: scales from 14px (mobile) to 16px (desktop) */
+html {
+  font-size: clamp(14px, 1.5vw, 16px);
+  scroll-behavior: smooth;
+}
+
+/* Focus outline visible for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar (Webkit) for the movie carousels */
+.movie-scroll::-webkit-scrollbar {
+  display: none;
+}
