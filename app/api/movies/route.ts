@@ -18,6 +18,13 @@ const schema = z.object({
   rating: z.number().min(0).max(10).optional(),
   quality: z.string().optional(),
   isSeries: z.boolean().default(false),
+  tags: z.array(z.string()).default([]),
+  country: z.string().optional(),
+  duration: z.string().optional(),
+  story: z.string().optional(),
+  style: z.string().optional(),
+  plot: z.string().optional(),
+  sourceUrl: z.string().optional(),
 });
 
 export async function GET() {

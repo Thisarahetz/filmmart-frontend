@@ -14,6 +14,13 @@ export interface IMovie extends Document {
   rating?: number;
   quality?: string;
   isSeries: boolean;
+  tags: string[];
+  country?: string;
+  duration?: string;
+  story?: string;
+  style?: string;
+  plot?: string;
+  sourceUrl?: string;
 }
 
 const MovieSchema = new Schema<IMovie>(
@@ -31,6 +38,13 @@ const MovieSchema = new Schema<IMovie>(
     rating: { type: Number, min: 0, max: 10 },
     quality: String,
     isSeries: { type: Boolean, default: false },
+    tags: { type: [String], default: [], index: true },
+    country: String,
+    duration: String,
+    story: String,
+    style: String,
+    plot: String,
+    sourceUrl: String,
   },
   { timestamps: true }
 );

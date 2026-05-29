@@ -1,12 +1,9 @@
 'use client';
 
-/* Client Component: needs liked state for heart toggle */
-
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, StarOff, Heart, Play } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Heart, Play } from 'lucide-react';
 import type { Movie } from '@/types';
 
 interface Props {
@@ -18,6 +15,8 @@ const PLACEHOLDER = 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-pos
 export default function MovieCard({ movie }: Props) {
   const [liked, setLiked] = useState(false);
   const thumb = movie.imgSm || movie.img || PLACEHOLDER;
+  const ratingVal = movie.rating ?? 0;
+  const starsFull = Math.round(ratingVal / 2);
 
   return (
     <Link
@@ -25,7 +24,7 @@ export default function MovieCard({ movie }: Props) {
       className="group relative block shrink-0 w-[160px] rounded-md overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
       aria-label={`View ${movie.title}`}
     >
-      {/* Poster — fixed 2:3 ratio, no inline style on Image */}
+      {/* Poster */}
       <div className="relative w-[160px] h-[240px]">
         <Image
           src={thumb}
@@ -35,34 +34,18 @@ export default function MovieCard({ movie }: Props) {
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
 
-        {/* Gradient overlay — fades in on hover */}
+        {/* Gradient overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        {/* Info — slides up from bottom on hover */}
-        <div className="absolute inset-x-0 bottom-0 p-2.5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-          <div className="flex items-center gap-0.5 text-yellow-400 mb-1">
-            {[...Array(4)].map((_, i) => (
-              <Star key={i} size={11} fill="currentColor" aria-hidden="true" />
-            ))}
-            <StarOff size={11} aria-hidden="true" />
-          </div>
-
-          <div className="flex items-center gap-1.5 text-[10px] text-gray-300 font-semibold mb-1.5">
-            {movie.year && <span>{movie.year}</span>}
-            {movie.limit && (
-              <span className="border border-gray-500 px-0.5 rounded leading-tight">
-                +{movie.limit}
-              </span>
-            )}
-          </div>
-
-          {movie.desc && (
-            <p className="text-[10px] text-gray-200 line-clamp-2 leading-snug">{movie.desc}</p>
-          )}
-
-          {movie.genre && (
-            <Badge className="mt-1.5 text-[9px] h-4 px-1">{movie.genre}</Badge>
-          )}
+        {/* Type badge — top left, always visible */}
+        <div className="absolute top-1.5 left-1.5">
+          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+            movie.isSeries
+              ? 'bg-blue-600 text-white'
+              : 'bg-yellow-500 text-black'
+          }`}>
+            {movie.isSeries ? 'Series' : 'Movie'}
+          </span>
         </div>
 
         {/* Action buttons — top right, appear on hover */}
@@ -83,13 +66,56 @@ export default function MovieCard({ movie }: Props) {
             <Play size={14} fill="currentColor" />
           </span>
         </div>
+
+        {/* Hover info — bottom */}
+        <div className="absolute inset-x-0 bottom-0 p-2.5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+          {movie.desc && (
+            <p className="text-[10px] text-gray-200 line-clamp-2 leading-snug">{movie.desc}</p>
+          )}
+        </div>
       </div>
 
-      {/* Title + type label below poster */}
-      <div className="pt-1.5 pb-1 px-0.5">
-        <p className="text-white text-xs font-medium truncate leading-tight">{movie.title}</p>
-        {movie.isSeries && (
-          <span className="text-[10px] text-gray-400">Series</span>
+      {/* Below poster — always visible */}
+      <div className="bg-zinc-900 pt-1.5 pb-2 px-1.5">
+        <p className="text-white text-xs font-medium truncate leading-tight mb-1">
+          {movie.title}
+        </p>
+
+        {/* Genre + Year row */}
+        <div className="flex items-center gap-1.5 flex-wrap mb-1">
+          {movie.genre && (
+            <span className="text-[9px] bg-zinc-700 text-zinc-300 px-1.5 py-0.5 rounded truncate max-w-[90px]">
+              {movie.genre}
+            </span>
+          )}
+          {movie.year && (
+            <span className="text-[9px] text-zinc-400">{movie.year}</span>
+          )}
+        </div>
+
+        {/* Star rating */}
+        {ratingVal > 0 && (
+          <div className="flex items-center gap-0.5">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <svg
+                key={i}
+                className={`w-2.5 h-2.5 ${i <= starsFull ? 'text-yellow-400' : 'text-zinc-600'}`}
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                aria-hidden="true"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            ))}
+            <span className="text-[9px] text-zinc-400 ml-0.5">{ratingVal.toFixed(1)}</span>
+          </div>
+        )}
+
+        {/* Tags — first tag only */}
+        {movie.tags?.length > 0 && (
+          <p className="text-[9px] text-zinc-500 mt-0.5 truncate">
+            #{movie.tags[0]}
+          </p>
         )}
       </div>
     </Link>

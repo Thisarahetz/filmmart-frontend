@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Star, StarOff, ArrowLeft, Calendar, Tag } from 'lucide-react';
+import { Star, StarOff, ArrowLeft, Calendar, Globe, Clock } from 'lucide-react';
 import { connectDB } from '@/lib/db';
 import Movie from '@/lib/models/Movie';
 import { Badge } from '@/components/ui/badge';
@@ -28,18 +28,56 @@ async function getMovie(id: string): Promise<MovieType | null> {
   }
 }
 
+async function getSimilarMovies(movie: MovieType): Promise<MovieType[]> {
+  if (!movie.tags?.length) return [];
+  try {
+    const similar = await Movie.aggregate([
+      {
+        $match: {
+          _id: { $ne: movie._id },
+          tags: { $in: movie.tags },
+        },
+      },
+      {
+        $addFields: {
+          sharedTags: { $size: { $setIntersection: ['$tags', movie.tags] } },
+        },
+      },
+      { $sort: { sharedTags: -1, rating: -1 } },
+      { $limit: 12 },
+    ]);
+    return serialize(similar) as unknown as MovieType[];
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const movie = await getMovie(id);
   if (!movie) return { title: 'Not Found' };
 
+  const keywords = [
+    ...(movie.tags ?? []),
+    movie.genre ?? '',
+    movie.country ?? '',
+    movie.year ?? '',
+    'similar movies',
+    'watch online',
+  ].filter(Boolean);
+
   return {
-    title: movie.title,
-    description: movie.desc ?? `Watch ${movie.title} on Filmmart.`,
+    title: `${movie.title} – Watch & Find Similar Movies`,
+    description:
+      movie.desc ??
+      `Watch ${movie.title}${movie.year ? ` (${movie.year})` : ''}. Find similar movies by tags: ${(movie.tags ?? []).join(', ')}.`,
+    keywords,
     alternates: { canonical: `/movies/${id}` },
     openGraph: {
       title: movie.title,
-      description: movie.desc ?? `Watch ${movie.title} on Filmmart.`,
+      description:
+        movie.desc ??
+        `Find movies similar to ${movie.title}. Tags: ${(movie.tags ?? []).join(', ')}.`,
       images: movie.img ? [{ url: movie.img, width: 700, height: 250 }] : [],
       type: movie.isSeries ? 'video.tv_show' : 'video.movie',
     },
@@ -52,7 +90,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-/** Extract YouTube video ID so we can embed it cleanly */
 function youtubeId(url: string): string | null {
   const match = url.match(
     /(?:youtube\.com\/embed\/|youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/
@@ -65,7 +102,12 @@ export default async function MovieDetailPage({ params }: Props) {
   const movie = await getMovie(id);
   if (!movie) notFound();
 
+  await connectDB();
+  const similar = await getSimilarMovies(movie);
+
   const videoId = movie.trailer ? youtubeId(movie.trailer) : null;
+  const ratingDisplay = movie.rating ? (movie.rating / 2).toFixed(1) : null;
+  const starsFull = movie.rating ? Math.round(movie.rating / 2) : 0;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -74,12 +116,22 @@ export default async function MovieDetailPage({ params }: Props) {
     description: movie.desc,
     genre: movie.genre,
     dateCreated: movie.year,
+    countryOfOrigin: movie.country,
+    duration: movie.duration,
     image: movie.img,
+    keywords: (movie.tags ?? []).join(', '),
+    aggregateRating: movie.rating
+      ? {
+          '@type': 'AggregateRating',
+          ratingValue: movie.rating,
+          bestRating: 10,
+          worstRating: 0,
+        }
+      : undefined,
   };
 
   return (
     <>
-      {/* JSON-LD structured data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -88,7 +140,6 @@ export default async function MovieDetailPage({ params }: Props) {
       <div className="bg-black min-h-screen pt-14">
         <div className="max-w-4xl mx-auto px-4 py-8">
 
-          {/* Back link */}
           <Button asChild variant="ghost" size="sm" className="mb-6 -ml-1">
             <Link href="/">
               <ArrowLeft size={16} aria-hidden="true" />
@@ -96,10 +147,48 @@ export default async function MovieDetailPage({ params }: Props) {
             </Link>
           </Button>
 
-          {/* Title */}
-          <h1 className="text-yellow-400 text-2xl sm:text-3xl font-bold leading-tight mb-6">
+          <h1 className="text-yellow-400 text-2xl sm:text-3xl font-bold leading-tight mb-4">
             {movie.title}
           </h1>
+
+          {/* Meta badges */}
+          <div className="flex flex-wrap items-center gap-2 mb-6">
+            {movie.genre && <Badge>{movie.genre}</Badge>}
+            {movie.year && (
+              <Badge variant="outline" className="gap-1">
+                <Calendar size={11} aria-hidden="true" />
+                {movie.year}
+              </Badge>
+            )}
+            {movie.country && (
+              <Badge variant="outline" className="gap-1">
+                <Globe size={11} aria-hidden="true" />
+                {movie.country}
+              </Badge>
+            )}
+            {movie.duration && (
+              <Badge variant="outline" className="gap-1">
+                <Clock size={11} aria-hidden="true" />
+                {movie.duration}
+              </Badge>
+            )}
+            <Badge variant="outline">{movie.isSeries ? 'TV Series' : 'Movie'}</Badge>
+          </div>
+
+          {/* Tags */}
+          {movie.tags?.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-6">
+              {movie.tags.map((tag) => (
+                <Link
+                  key={tag}
+                  href={`/search?q=${encodeURIComponent(tag)}`}
+                  className="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-2.5 py-1 rounded-full transition-colors"
+                >
+                  #{tag}
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Poster */}
           {(movie.img || movie.imgSm) && (
@@ -115,39 +204,27 @@ export default async function MovieDetailPage({ params }: Props) {
             </div>
           )}
 
-          {/* Meta badges */}
-          <div className="flex flex-wrap items-center gap-2 mb-6">
-            {movie.genre && <Badge>{movie.genre}</Badge>}
-            {movie.year && (
-              <Badge variant="outline" className="gap-1">
-                <Calendar size={11} aria-hidden="true" />
-                {movie.year}
-              </Badge>
-            )}
-            {movie.limit && (
-              <Badge variant="outline">
-                <Tag size={11} className="mr-1" aria-hidden="true" />
-                +{movie.limit}
-              </Badge>
-            )}
-            <Badge variant="outline">{movie.isSeries ? 'TV Series' : 'Movie'}</Badge>
-          </div>
-
           {/* Description */}
           {movie.desc && (
-            <p className="text-gray-300 leading-relaxed mb-8">{movie.desc}</p>
+            <p className="text-gray-300 leading-relaxed mb-4">{movie.desc}</p>
           )}
 
-          {/* Ad between description and trailer */}
+          {/* Style */}
+          {movie.style && (
+            <p className="text-zinc-400 text-sm italic mb-8">
+              <span className="text-zinc-500 not-italic font-medium">Style: </span>
+              {movie.style}
+            </p>
+          )}
+
           <AdBanner
             slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_DETAIL ?? ''}
             format="horizontal"
             className="mb-8"
           />
 
-          {/* Trailer + info row */}
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Trailer embed */}
+          {/* Trailer + Rating */}
+          <div className="flex flex-col lg:flex-row gap-8 mb-12">
             {videoId && (
               <div className="flex-1">
                 <h2 className="text-white font-semibold mb-3">Trailer</h2>
@@ -163,23 +240,87 @@ export default async function MovieDetailPage({ params }: Props) {
               </div>
             )}
 
-            {/* Rating panel */}
             <aside aria-label="Rating" className="lg:w-56 shrink-0">
-              <h2 className="text-white font-semibold mb-3">Filmmart Rating</h2>
+              <h2 className="text-white font-semibold mb-3">Rating</h2>
               <div className="bg-zinc-900 border border-white/10 rounded-lg p-4 flex flex-col items-center gap-2">
-                <div
-                  className="flex text-yellow-400"
-                  aria-label="4 out of 5 stars"
-                >
-                  {[...Array(4)].map((_, i) => (
-                    <Star key={i} size={22} fill="currentColor" aria-hidden="true" />
-                  ))}
-                  <StarOff size={22} aria-hidden="true" />
-                </div>
-                <p className="text-yellow-300 font-bold text-xl">4.0 / 5.0</p>
+                {movie.rating ? (
+                  <>
+                    <div
+                      className="flex text-yellow-400"
+                      aria-label={`${ratingDisplay} out of 5 stars`}
+                    >
+                      {[...Array(5)].map((_, i) =>
+                        i < starsFull ? (
+                          <Star key={i} size={22} fill="currentColor" aria-hidden="true" />
+                        ) : (
+                          <StarOff key={i} size={22} aria-hidden="true" />
+                        )
+                      )}
+                    </div>
+                    <p className="text-yellow-300 font-bold text-xl">
+                      {movie.rating.toFixed(1)} / 10
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-zinc-500 text-sm">No rating yet</p>
+                )}
               </div>
             </aside>
           </div>
+
+          {/* Similar Movies */}
+          {similar.length > 0 && (
+            <section aria-labelledby="similar-heading">
+              <h2
+                id="similar-heading"
+                className="text-white text-xl font-bold mb-4"
+              >
+                Similar Movies
+              </h2>
+              <p className="text-zinc-500 text-sm mb-4">
+                Based on tags:{' '}
+                {movie.tags.map((t) => (
+                  <span key={t} className="text-zinc-400">#{t} </span>
+                ))}
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {similar.map((s) => (
+                  <Link
+                    key={s._id}
+                    href={`/movies/${s._id}`}
+                    className="group block bg-zinc-900 rounded-lg overflow-hidden border border-white/5 hover:border-yellow-400/40 transition-colors"
+                  >
+                    {s.img ? (
+                      <div className="relative w-full aspect-[2/3]">
+                        <Image
+                          src={s.img}
+                          alt={s.title}
+                          fill
+                          sizes="(max-width: 640px) 50vw, 25vw"
+                          className="object-cover group-hover:opacity-80 transition-opacity"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-[2/3] bg-zinc-800 flex items-center justify-center">
+                        <span className="text-zinc-600 text-xs text-center px-2">{s.title}</span>
+                      </div>
+                    )}
+                    <div className="p-2">
+                      <p className="text-white text-xs font-medium line-clamp-2 leading-tight mb-1">
+                        {s.title}
+                      </p>
+                      <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+                        {s.year && <span>{s.year}</span>}
+                        {s.rating && (
+                          <span className="text-yellow-400">★ {s.rating.toFixed(1)}</span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </>

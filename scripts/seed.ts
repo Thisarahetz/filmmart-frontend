@@ -1,39 +1,51 @@
 /**
- * Demo seed script — run with:  npx tsx scripts/seed.ts
+ * Migration seed — run with:  npx tsx scripts/seed.ts
  *
- * Creates:
- *  - 1 admin user  (admin@filmmart.com / admin123)
- *  - 12 demo movies with ibb.co poster images
- *  - 4 curated lists (Trending, Action, Horror, Series)
+ * - Clears all existing movies and lists
+ * - Imports 1,497 movies from bestsimilar_movies.json
+ * - Deduplicates by title (merges tags)
+ * - Builds tag-based lists
+ * - Creates admin user if not present
  */
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import path from 'path';
+import fs from 'fs';
 import 'dotenv/config';
 
-// ── Inline schemas (avoids next.js module resolution issues in a plain script) ─
+// ── Inline schemas ────────────────────────────────────────────────────────────
 
 const MovieSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true, unique: true },
-    desc: String,
-    img: String,
-    imgTitle: String,
-    imgSm: String,
-    trailer: String,
-    video: String,
-    year: String,
-    limit: Number,
-    genre: String,
-    isSeries: { type: Boolean, default: false },
+    title:     { type: String, required: true, unique: true },
+    desc:      String,
+    img:       String,
+    imgTitle:  String,
+    imgSm:     String,
+    trailer:   String,
+    video:     String,
+    year:      String,
+    limit:     Number,
+    genre:     String,
+    rating:    { type: Number, min: 0, max: 10 },
+    quality:   String,
+    isSeries:  { type: Boolean, default: false },
+    tags:      { type: [String], default: [], index: true },
+    country:   String,
+    duration:  String,
+    story:     String,
+    style:     String,
+    plot:      String,
+    sourceUrl: String,
   },
   { timestamps: true }
 );
 
 const ListSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true, unique: true },
-    type: String,
-    genre: String,
+    title:   { type: String, required: true, unique: true },
+    type:    String,
+    genre:   String,
     content: [String],
   },
   { timestamps: true }
@@ -41,163 +53,98 @@ const ListSchema = new mongoose.Schema(
 
 const UserSchema = new mongoose.Schema(
   {
-    username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    username:   { type: String, required: true, unique: true },
+    email:      { type: String, required: true, unique: true },
+    password:   { type: String, required: true },
     profilePic: { type: String, default: '' },
-    isAdmin: { type: Boolean, default: false },
+    isAdmin:    { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
 const Movie = mongoose.models.Movies || mongoose.model('Movies', MovieSchema);
-const List = mongoose.models.List || mongoose.model('List', ListSchema);
-const User = mongoose.models.User || mongoose.model('User', UserSchema);
+const List  = mongoose.models.List   || mongoose.model('List', ListSchema);
+const User  = mongoose.models.User   || mongoose.model('User', UserSchema);
 
-// ── Movie data (ibb.co poster images) ────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-const MOVIES = [
-  // ── Action / Superhero
-  {
-    title: 'Venom (2018)',
-    desc: 'Journalist Eddie Brock is trying to take down Carlton Drake, the notorious and brilliant founder of the Life Foundation. While investigating one of Drake\'s experiments, Eddie\'s body merges with the alien Venom — leaving him with superhuman strength and power.',
-    img: 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-poster.jpg',
-    imgSm: 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-poster.jpg',
-    imgTitle: 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-poster.jpg',
-    trailer: 'https://www.youtube.com/embed/wuCgt_bbXHs',
-    year: '2018',
-    limit: 15,
-    genre: 'action',
-    isSeries: false,
-  },
-  {
-    title: 'Spider-Man: Far From Home',
-    desc: 'Following the events of Avengers: Endgame, Spider-Man must step up to take on new threats in a world that has changed forever.',
-    img: 'https://i.ibb.co/kDRSfGg/MTRA-com.png',
-    imgSm: 'https://i.ibb.co/kDRSfGg/MTRA-com.png',
-    imgTitle: 'https://i.ibb.co/kDRSfGg/MTRA-com.png',
-    trailer: 'https://www.youtube.com/embed/Nt9L1jCKGnE',
-    year: '2019',
-    limit: 13,
-    genre: 'action',
-    isSeries: false,
-  },
-  {
-    title: 'Avengers: Endgame',
-    desc: 'After the devastating events of Infinity War, the Avengers assemble once more to reverse Thanos\'s actions and restore balance to the universe.',
-    img: 'https://i.ibb.co/v1MXJ2B/images.jpg',
-    imgSm: 'https://i.ibb.co/v1MXJ2B/images.jpg',
-    imgTitle: 'https://i.ibb.co/v1MXJ2B/images.jpg',
-    trailer: 'https://www.youtube.com/embed/TcMBFSGVi1c',
-    year: '2019',
-    limit: 13,
-    genre: 'action',
-    isSeries: false,
-  },
-  {
-    title: 'Interstellar',
-    desc: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival.',
-    img: 'https://i.ibb.co/pZm8M50/37972.jpg',
-    imgSm: 'https://i.ibb.co/pZm8M50/37972.jpg',
-    imgTitle: 'https://i.ibb.co/pZm8M50/37972.jpg',
-    trailer: 'https://www.youtube.com/embed/zSWdZVtXT7E',
-    year: '2014',
-    limit: 13,
-    genre: 'sci-fi',
-    isSeries: false,
-  },
-  {
-    title: 'The Dark Knight',
-    desc: 'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
-    img: 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-poster.jpg',
-    imgSm: 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-poster.jpg',
-    trailer: 'https://www.youtube.com/embed/EXeTwQWrcwY',
-    year: '2008',
-    limit: 13,
-    genre: 'action',
-    isSeries: false,
-  },
-  {
-    title: 'Inception',
-    desc: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.',
-    img: 'https://i.ibb.co/kDRSfGg/MTRA-com.png',
-    imgSm: 'https://i.ibb.co/kDRSfGg/MTRA-com.png',
-    trailer: 'https://www.youtube.com/embed/YoHD9XEInc0',
-    year: '2010',
-    limit: 13,
-    genre: 'sci-fi',
-    isSeries: false,
-  },
-  // ── Horror
-  {
-    title: 'It (2017)',
-    desc: 'In the summer of 1989, a group of bullied kids band together to destroy a shapeshifting monster, which disguises itself as a clown and preys on the children of Derry, their small Maine town.',
-    img: 'https://i.ibb.co/pZm8M50/37972.jpg',
-    imgSm: 'https://i.ibb.co/pZm8M50/37972.jpg',
-    trailer: 'https://www.youtube.com/embed/FnCdOQsX5kc',
-    year: '2017',
-    limit: 18,
-    genre: 'horror',
-    isSeries: false,
-  },
-  {
-    title: 'A Quiet Place',
-    desc: 'A family struggles to survive in a post-apocalyptic world inhabited by blind monsters with an acute sense of hearing.',
-    img: 'https://i.ibb.co/v1MXJ2B/images.jpg',
-    imgSm: 'https://i.ibb.co/v1MXJ2B/images.jpg',
-    trailer: 'https://www.youtube.com/embed/WR7cc5t7tv8',
-    year: '2018',
-    limit: 15,
-    genre: 'horror',
-    isSeries: false,
-  },
-  // ── Sci-Fi
-  {
-    title: 'Dune (2021)',
-    desc: 'A noble family becomes embroiled in a war for control over the galaxy\'s most valuable asset while its heir becomes troubled by visions of a dark future.',
-    img: 'https://i.ibb.co/kDRSfGg/MTRA-com.png',
-    imgSm: 'https://i.ibb.co/kDRSfGg/MTRA-com.png',
-    trailer: 'https://www.youtube.com/embed/8g18jFHCLXk',
-    year: '2021',
-    limit: 13,
-    genre: 'sci-fi',
-    isSeries: false,
-  },
-  // ── Series
-  {
-    title: 'Breaking Bad',
-    desc: 'A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine in order to secure his family\'s future.',
-    img: 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-poster.jpg',
-    imgSm: 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-poster.jpg',
-    trailer: 'https://www.youtube.com/embed/HhesaQXLuRY',
-    year: '2008',
-    limit: 18,
-    genre: 'crime',
-    isSeries: true,
-  },
-  {
-    title: 'Stranger Things',
-    desc: 'When a young boy disappears, his mother, a police chief, and his friends must confront terrifying supernatural forces in order to get him back.',
-    img: 'https://i.ibb.co/pZm8M50/37972.jpg',
-    imgSm: 'https://i.ibb.co/pZm8M50/37972.jpg',
-    trailer: 'https://www.youtube.com/embed/b9EkMc79ZSU',
-    year: '2016',
-    limit: 16,
-    genre: 'horror',
-    isSeries: true,
-  },
-  {
-    title: 'The Witcher',
-    desc: 'Geralt of Rivia, a solitary monster hunter, struggles to find his place in a world where people often prove more wicked than beasts.',
-    img: 'https://i.ibb.co/v1MXJ2B/images.jpg',
-    imgSm: 'https://i.ibb.co/v1MXJ2B/images.jpg',
-    trailer: 'https://www.youtube.com/embed/ndl7gRDMECg',
-    year: '2019',
-    limit: 18,
-    genre: 'fantasy',
-    isSeries: true,
-  },
-];
+function extractYear(title: string): string | undefined {
+  const m = title.match(/\((\d{4})\)\s*$/);
+  return m ? m[1] : undefined;
+}
+
+function cleanTitle(title: string): string {
+  return title.replace(/\s*\(\d{4}\)\s*$/, '').trim();
+}
+
+function isValidImageUrl(url: string): boolean {
+  return url.startsWith('http') && !url.includes('32895.jpg'); // placeholder thumb
+}
+
+// ── Load JSON ─────────────────────────────────────────────────────────────────
+
+interface RawEntry {
+  tag: string;
+  title: string;
+  url: string;
+  image_url: string;
+  rating: string;
+  genre: string;
+  country: string;
+  duration: string;
+  story: string;
+  style: string;
+  plot: string;
+}
+
+const jsonPath = path.resolve(
+  '/Users/thisarahettikankanama/Downloads/bestsimilar_scraper/bestsimilar_movies.json'
+);
+const raw: RawEntry[] = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
+
+// ── Deduplicate by title, merge tags ─────────────────────────────────────────
+
+function buildMovies() {
+  const map = new Map<string, ReturnType<typeof toDoc>>();
+
+  for (const entry of raw) {
+    const key = entry.title.toLowerCase().trim();
+    if (map.has(key)) {
+      // merge tag into existing
+      const existing = map.get(key)!;
+      if (!existing.tags.includes(entry.tag)) {
+        existing.tags.push(entry.tag);
+      }
+    } else {
+      map.set(key, toDoc(entry));
+    }
+  }
+
+  return [...map.values()];
+}
+
+function toDoc(entry: RawEntry) {
+  const year = extractYear(entry.title);
+  const img  = isValidImageUrl(entry.image_url) ? entry.image_url : undefined;
+
+  return {
+    title:     entry.title.trim(),
+    year,
+    rating:    entry.rating ? parseFloat(entry.rating) : undefined,
+    genre:     entry.genre  || undefined,
+    country:   entry.country || undefined,
+    duration:  entry.duration || undefined,
+    desc:      entry.story  || undefined,
+    story:     entry.story  || undefined,
+    style:     entry.style  || undefined,
+    plot:      entry.plot   || undefined,
+    img,
+    imgSm:     img,
+    sourceUrl: entry.url   || undefined,
+    isSeries:  /\b(series|season|the series)\b/i.test(entry.title),
+    tags:      [entry.tag],
+  };
+}
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
@@ -207,79 +154,79 @@ async function seed() {
   await mongoose.connect(url);
   console.log('Connected.\n');
 
-  // Wipe existing demo data
-  await Promise.all([Movie.deleteMany({}), List.deleteMany({}), User.deleteMany({})]);
-  console.log('Cleared existing data.');
+  // Clear existing movies and lists
+  await Promise.all([Movie.deleteMany({}), List.deleteMany({})]);
+  console.log('Cleared existing movies and lists.');
 
-  // Insert movies
-  const inserted = await Movie.insertMany(MOVIES);
-  console.log(`Inserted ${inserted.length} movies.`);
+  const movies = buildMovies();
+  console.log(`Preparing ${movies.length} unique movies …`);
 
-  // Map title → _id for list building
-  const byTitle = Object.fromEntries(inserted.map((m) => [m.title, m._id.toString()]));
+  // Insert in batches to avoid document-size limits
+  const BATCH = 200;
+  let inserted = 0;
+  for (let i = 0; i < movies.length; i += BATCH) {
+    const batch = movies.slice(i, i + BATCH);
+    try {
+      await Movie.insertMany(batch, { ordered: false });
+      inserted += batch.length;
+    } catch (err: unknown) {
+      // ordered:false continues on duplicate key — count actual inserts
+      const e = err as { insertedDocs?: unknown[] };
+      inserted += e.insertedDocs?.length ?? 0;
+    }
+  }
+  console.log(`Inserted ${inserted} movies.`);
 
-  // Build lists
-  const lists = [
-    {
-      title: 'Trending Now',
-      type: undefined,
-      genre: undefined,
-      content: [
-        byTitle['Venom (2018)'],
-        byTitle['Avengers: Endgame'],
-        byTitle['Interstellar'],
-        byTitle['Dune (2021)'],
-        byTitle['Stranger Things'],
-      ],
-    },
-    {
-      title: 'Action & Adventure',
-      type: 'movie',
-      genre: 'action',
-      content: [
-        byTitle['Venom (2018)'],
-        byTitle['Spider-Man: Far From Home'],
-        byTitle['Avengers: Endgame'],
-        byTitle['The Dark Knight'],
-        byTitle['Inception'],
-      ],
-    },
-    {
-      title: 'Horror Picks',
-      type: 'movie',
-      genre: 'horror',
-      content: [
-        byTitle['It (2017)'],
-        byTitle['A Quiet Place'],
-      ],
-    },
-    {
-      title: 'Top Series',
-      type: 'series',
-      genre: undefined,
-      content: [
-        byTitle['Breaking Bad'],
-        byTitle['Stranger Things'],
-        byTitle['The Witcher'],
-      ],
-    },
-  ];
+  // Build per-tag lists
+  const allTags = [...new Set(raw.map(e => e.tag))].sort();
+  const lists = [];
 
-  await List.insertMany(lists);
-  console.log(`Inserted ${lists.length} lists.`);
+  for (const tag of allTags) {
+    const docs = await Movie.find({ tags: tag }).select('_id').limit(50).lean();
+    if (docs.length === 0) continue;
+    lists.push({
+      title: tag.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      type:  'movie',
+      genre: tag,
+      content: docs.map((d: { _id: mongoose.Types.ObjectId }) => d._id.toString()),
+    });
+  }
 
-  // Admin user
-  const hashed = await bcrypt.hash('admin123', 12);
-  await User.create({
-    username: 'admin',
-    email: 'admin@filmmart.com',
-    password: hashed,
-    isAdmin: true,
+  // Top-rated across all
+  const topRated = await Movie.find({ rating: { $gte: 7 } })
+    .sort({ rating: -1 })
+    .limit(20)
+    .select('_id')
+    .lean();
+
+  lists.unshift({
+    title:   'Top Rated',
+    type:    'movie',
+    genre:   undefined as unknown as string,
+    content: topRated.map((d: { _id: mongoose.Types.ObjectId }) => d._id.toString()),
   });
-  console.log('Created admin user.');
 
-  console.log('\n✅ Seed complete!\n');
+  await List.insertMany(lists, { ordered: false });
+  console.log(`Inserted ${lists.length} lists (1 top-rated + ${allTags.length} tag lists).`);
+
+  // Ensure admin user exists
+  const existing = await User.findOne({ email: 'admin@filmmart.com' });
+  if (!existing) {
+    const hashed = await bcrypt.hash('admin123', 12);
+    await User.create({
+      username: 'admin',
+      email:    'admin@filmmart.com',
+      password: hashed,
+      isAdmin:  true,
+    });
+    console.log('Created admin user.');
+  } else {
+    console.log('Admin user already exists — skipped.');
+  }
+
+  console.log('\n✅ Migration complete!\n');
   console.log('  Admin login  →  admin@filmmart.com / admin123');
+  console.log('  Movies       →  ' + inserted);
   console.log('  App          →  http://localhost:3001\n');
 
   await mongoose.disconnect();

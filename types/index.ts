@@ -13,6 +13,13 @@ export interface Movie {
   rating?: number;
   quality?: string;
   isSeries: boolean;
+  tags: string[];
+  country?: string;
+  duration?: string;
+  story?: string;
+  style?: string;
+  plot?: string;
+  sourceUrl?: string;
   createdAt: string;
   updatedAt: string;
 }

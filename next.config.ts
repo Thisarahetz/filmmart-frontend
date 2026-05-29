@@ -6,6 +6,7 @@ const config: NextConfig = {
       { protocol: 'https', hostname: 'i.ibb.co' },
       { protocol: 'https', hostname: 'ibb.co' },
       { protocol: 'https', hostname: 'baiscopedownloads.co' },
+      { protocol: 'https', hostname: 'bestsimilar.com' },
     ],
   },
 };

@@ -19,9 +19,38 @@ export async function getTrendingMovies(limit = 20): Promise<MovieType[]> {
 export async function getEnrichedLists(filters: ListFilters = {}): Promise<MovieListType[]> {
   await connectDB();
 
+  // When a genre/category filter is active, fetch movies by tag directly
+  if (filters.genre) {
+    const movieFilter: Record<string, unknown> = { tags: filters.genre };
+    if (filters.type === 'movie')  movieFilter.isSeries = false;
+    if (filters.type === 'series') movieFilter.isSeries = true;
+
+    const movies = await Movie.find(movieFilter)
+      .sort({ rating: -1 })
+      .limit(50)
+      .lean();
+
+    if (!movies.length) return [];
+
+    // Return as a single synthetic list
+    const label = filters.genre
+      .split('-')
+      .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+
+    return serialize([{
+      _id: filters.genre,
+      title: label,
+      type: filters.type,
+      genre: filters.genre,
+      content: movies.map((m) => (m._id as { toString(): string }).toString()),
+      movies: serialize(movies),
+    }]) as unknown as MovieListType[];
+  }
+
+  // No filter — random sample of lists
   const match: Record<string, string> = {};
   if (filters.type) match.type = filters.type;
-  if (filters.genre) match.genre = filters.genre;
 
   const pipeline: PipelineStage[] = [];
   if (Object.keys(match).length) pipeline.push({ $match: match });

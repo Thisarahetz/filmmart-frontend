@@ -25,6 +25,8 @@ export async function searchMovies(
       { genre: { $regex: pattern, $options: 'i' } },
       { year:  { $regex: pattern, $options: 'i' } },
       { desc:  { $regex: pattern, $options: 'i' } },
+      { tags:  { $regex: pattern, $options: 'i' } },
+      { country: { $regex: pattern, $options: 'i' } },
     ],
   };
 
