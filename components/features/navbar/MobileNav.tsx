@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import * as Dialog from '@radix-ui/react-dialog';
 import {
-  Menu, X, Home, Film, Tv, Sparkles, Mail,
+  Menu, X, Home, Film, Tv, Sparkles, Mail, Gamepad2,
   Swords, Laugh, Ghost, Rocket, Heart, Zap, BookOpen, Flame, Globe,
 } from 'lucide-react';
 
@@ -12,6 +12,7 @@ const links = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/movies', label: 'Movies', icon: Film },
   { href: '/series', label: 'Series', icon: Tv },
+  { href: '/games', label: 'Games', icon: Gamepad2 },
   { href: '/register', label: 'New & Popular', icon: Sparkles },
   { href: '/#contact', label: 'Contact Us', icon: Mail },
 ];

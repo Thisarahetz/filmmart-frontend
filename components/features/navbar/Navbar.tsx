@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Facebook, Youtube, Twitter, Instagram } from 'lucide-react';
-import MobileNav from './MobileNav';
 import SearchBox from '@/components/features/search/SearchBox';
 import { cn } from '@/lib/utils';
 
@@ -39,8 +38,6 @@ export default function Navbar() {
       <div className="flex items-center justify-between px-4 h-14 max-w-screen-2xl mx-auto">
         {/* Left: mobile menu + logo + search */}
         <div className="flex items-center gap-3">
-          <MobileNav />
-
           <Link href="/" aria-label="Filmmart home">
             <Image
               src="https://i.ibb.co/v1MXJ2B/images.jpg"

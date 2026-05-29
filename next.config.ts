@@ -7,6 +7,7 @@ const config: NextConfig = {
       { protocol: 'https', hostname: 'ibb.co' },
       { protocol: 'https', hostname: 'baiscopedownloads.co' },
       { protocol: 'https', hostname: 'bestsimilar.com' },
+      { protocol: 'https', hostname: 'api.saferide.lk' },
     ],
   },
 };

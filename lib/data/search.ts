@@ -1,7 +1,8 @@
 import { connectDB } from '@/lib/db';
 import Movie from '@/lib/models/Movie';
+import Game from '@/lib/models/Game';
 import { serialize } from '@/lib/utils';
-import type { Movie as MovieType } from '@/types';
+import type { Movie as MovieType, Game as GameType } from '@/types';
 
 function escapeRegex(str: string) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -39,4 +40,30 @@ export async function searchMovies(
     .lean();
 
   return serialize(movies) as unknown as MovieType[];
+}
+
+export async function searchGames(
+  query: string,
+  options: { limit?: number } = {}
+): Promise<GameType[]> {
+  const q = query.trim();
+  if (q.length < 1) return [];
+
+  const { limit = 60 } = options;
+  const pattern = escapeRegex(q);
+
+  await connectDB();
+
+  const games = await Game.find({
+    $or: [
+      { title:       { $regex: pattern, $options: 'i' } },
+      { category:    { $regex: pattern, $options: 'i' } },
+      { description: { $regex: pattern, $options: 'i' } },
+    ],
+  })
+    .sort({ title: 1 })
+    .limit(limit)
+    .lean();
+
+  return serialize(games) as unknown as GameType[];
 }

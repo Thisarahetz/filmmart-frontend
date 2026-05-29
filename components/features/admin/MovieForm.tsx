@@ -7,9 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Movie } from '@/types';
 
-const GENRES = ['action','comedy','drama','horror','sci-fi','romance','thriller','documentary','animation','fantasy','crime'];
-const QUALITY_OPTIONS = ['WEB','WEB-DL','BluRay','HDCAM','LEAK-WEBRIP','S01 COMPLETE','S01-S08 COMPLETE','SEASON COMPLETE'];
-
 export interface MovieFormData {
   title: string;
   desc: string;
@@ -19,17 +16,14 @@ export interface MovieFormData {
   trailer: string;
   video: string;
   year: string;
-  genre: string;
   limit: string;
   rating: string;
-  quality: string;
   isSeries: boolean;
 }
 
 export const EMPTY_FORM: MovieFormData = {
   title: '', desc: '', img: '', imgSm: '', imgTitle: '',
-  trailer: '', video: '', year: '', genre: '', limit: '',
-  rating: '', quality: 'WEB', isSeries: false,
+  trailer: '', video: '', year: '', limit: '', rating: '', isSeries: false,
 };
 
 export function movieToForm(m: Movie): MovieFormData {
@@ -42,10 +36,8 @@ export function movieToForm(m: Movie): MovieFormData {
     trailer: m.trailer ?? '',
     video: m.video ?? '',
     year: m.year ?? '',
-    genre: m.genre ?? '',
     limit: m.limit != null ? String(m.limit) : '',
     rating: m.rating != null ? String(m.rating) : '',
-    quality: m.quality ?? 'WEB',
     isSeries: m.isSeries,
   };
 }
@@ -91,31 +83,6 @@ export default function MovieForm({ open, onOpenChange, title, form, onChange, o
               <div className="space-y-1.5">
                 <Label htmlFor="f-year">Year</Label>
                 <Input id="f-year" value={form.year} onChange={(e) => set('year', e.target.value)} placeholder="2024" />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="f-genre">Genre</Label>
-                <select
-                  id="f-genre"
-                  value={form.genre}
-                  onChange={(e) => set('genre', e.target.value)}
-                  className="w-full rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
-                >
-                  <option value="">— Select genre —</option>
-                  {GENRES.map((g) => <option key={g} value={g} className="bg-zinc-900">{g.charAt(0).toUpperCase() + g.slice(1)}</option>)}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="f-quality">Quality</Label>
-                <select
-                  id="f-quality"
-                  value={form.quality}
-                  onChange={(e) => set('quality', e.target.value)}
-                  className="w-full rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
-                >
-                  {QUALITY_OPTIONS.map((q) => <option key={q} value={q} className="bg-zinc-900">{q}</option>)}
-                </select>
               </div>
 
               <div className="space-y-1.5">

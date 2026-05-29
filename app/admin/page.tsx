@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import type { Metadata } from 'next';
-import { Film, List, Users, Star } from 'lucide-react';
+import { Film, List, Users, Star, Gamepad2 } from 'lucide-react';
 import { getAdminStats, getAdminMovies } from '@/lib/data/admin';
 import { Badge } from '@/components/ui/badge';
 
@@ -23,9 +23,10 @@ export default async function AdminDashboardPage() {
       <h1 className="text-white text-2xl font-bold mb-6">Dashboard</h1>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         {[
           { label: 'Movies', value: stats.movies, icon: Film, color: 'text-blue-400' },
+          { label: 'Games', value: stats.games, icon: Gamepad2, color: 'text-yellow-400' },
           { label: 'Lists', value: stats.lists, icon: List, color: 'text-purple-400' },
           { label: 'Users', value: stats.users, icon: Users, color: 'text-green-400' },
         ].map(({ label, value, icon: Icon, color }) => (
@@ -49,7 +50,6 @@ export default async function AdminDashboardPage() {
             <thead>
               <tr className="bg-zinc-800/60 border-b border-zinc-700 text-left text-zinc-400">
                 <th className="px-4 py-3 font-medium">Title</th>
-                <th className="px-4 py-3 font-medium">Genre</th>
                 <th className="px-4 py-3 font-medium">Year</th>
                 <th className="px-4 py-3 font-medium">Rating</th>
                 <th className="px-4 py-3 font-medium">Type</th>
@@ -59,7 +59,6 @@ export default async function AdminDashboardPage() {
               {recent.map((movie) => (
                 <tr key={movie._id} className="hover:bg-zinc-800/40 transition-colors">
                   <td className="px-4 py-3 text-white font-medium max-w-[220px] truncate">{movie.title}</td>
-                  <td className="px-4 py-3 text-zinc-400 capitalize">{movie.genre ?? '—'}</td>
                   <td className="px-4 py-3 text-zinc-400">{movie.year ?? '—'}</td>
                   <td className="px-4 py-3">
                     {movie.rating != null ? (

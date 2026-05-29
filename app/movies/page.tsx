@@ -1,9 +1,10 @@
 export const dynamic = 'force-dynamic';
 
 import type { Metadata } from 'next';
-import { getEnrichedLists, getCategoryMovies } from '@/lib/data/lists';
+import { getEnrichedLists, getCategoryMovies, getTrendingMovies } from '@/lib/data/lists';
 import MovieList from '@/components/features/movies/MovieList';
 import CategoryGrid from '@/components/features/movies/CategoryGrid';
+import TrendingSlider from '@/components/features/slider/TrendingSlider';
 
 export const metadata: Metadata = {
   title: 'Movies',
@@ -38,14 +39,18 @@ export default async function MoviesPage({ searchParams }: Props) {
     );
   }
 
-  const lists = await getEnrichedLists({ type: 'movie' });
+  const [lists, trending] = await Promise.all([
+    getEnrichedLists({ type: 'movie' }),
+    getTrendingMovies(),
+  ]);
 
   return (
-    <div className="bg-black min-h-screen pt-4 pb-10">
+    <div className="bg-black min-h-screen pb-10">
+      <TrendingSlider movies={trending} />
       {lists.length === 0 ? (
         <p className="text-center text-gray-500 py-16">No movies found.</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 pt-4">
           {lists.map((list) => (
             <MovieList key={list._id} list={list} />
           ))}

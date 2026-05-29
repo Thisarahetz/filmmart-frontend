@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Film, List, Users, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, Film, List, Users, ExternalLink, Gamepad2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NAV = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/movies', label: 'Movies', icon: Film, exact: false },
+  { href: '/admin/games', label: 'Games', icon: Gamepad2, exact: false },
   { href: '/admin/lists', label: 'Lists', icon: List, exact: false },
   { href: '/admin/users', label: 'Users', icon: Users, exact: false },
 ];

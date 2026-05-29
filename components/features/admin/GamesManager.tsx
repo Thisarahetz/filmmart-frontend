@@ -2,51 +2,49 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Pencil, Trash2, Star, Film } from 'lucide-react';
+import { Plus, Pencil, Trash2, Gamepad2, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import MovieForm, { EMPTY_FORM, movieToForm, type MovieFormData } from './MovieForm';
-import type { Movie } from '@/types';
+import GameForm, { EMPTY_GAME_FORM, gameToForm, type GameFormData } from './GameForm';
+import type { Game } from '@/types';
 
 interface Props {
-  movies: Movie[];
+  games: Game[];
 }
 
-function buildPayload(form: MovieFormData) {
+function buildPayload(form: GameFormData) {
   return {
     title: form.title,
-    desc: form.desc || undefined,
+    category: form.category || undefined,
+    description: form.description || undefined,
     img: form.img || undefined,
-    imgSm: form.imgSm || undefined,
-    imgTitle: form.imgTitle || undefined,
-    trailer: form.trailer || undefined,
-    video: form.video || undefined,
-    year: form.year || undefined,
-    limit: form.limit ? Number(form.limit) : undefined,
+    legalStatus: form.legalStatus || undefined,
+    platform: form.platform,
+    countriesBanned: form.countriesBanned
+      ? form.countriesBanned.split(',').map((c) => c.trim()).filter(Boolean)
+      : [],
     rating: form.rating ? Number(form.rating) : undefined,
-    isSeries: form.isSeries,
   };
 }
 
-export default function MoviesManager({ movies: initial }: Props) {
+export default function GamesManager({ games: initial }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [movies, setMovies] = useState(initial);
+  const [games, setGames] = useState(initial);
 
   const [addOpen, setAddOpen] = useState(false);
-  const [addForm, setAddForm] = useState<MovieFormData>(EMPTY_FORM);
+  const [addForm, setAddForm] = useState<GameFormData>(EMPTY_GAME_FORM);
   const [addError, setAddError] = useState('');
 
   const [editOpen, setEditOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Movie | null>(null);
-  const [editForm, setEditForm] = useState<MovieFormData>(EMPTY_FORM);
+  const [editTarget, setEditTarget] = useState<Game | null>(null);
+  const [editForm, setEditForm] = useState<GameFormData>(EMPTY_GAME_FORM);
   const [editError, setEditError] = useState('');
 
   const [search, setSearch] = useState('');
 
-  function openEdit(movie: Movie) {
-    setEditTarget(movie);
-    setEditForm(movieToForm(movie));
+  function openEdit(game: Game) {
+    setEditTarget(game);
+    setEditForm(gameToForm(game));
     setEditError('');
     setEditOpen(true);
   }
@@ -54,18 +52,18 @@ export default function MoviesManager({ movies: initial }: Props) {
   function handleAdd() {
     setAddError('');
     startTransition(async () => {
-      const res = await fetch('/api/movies', {
+      const res = await fetch('/api/games', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildPayload(addForm)),
       });
       if (res.ok) {
         setAddOpen(false);
-        setAddForm(EMPTY_FORM);
+        setAddForm(EMPTY_GAME_FORM);
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
-        setAddError(data.error || 'Failed to create movie');
+        setAddError(data.error || 'Failed to create game');
       }
     });
   }
@@ -74,7 +72,7 @@ export default function MoviesManager({ movies: initial }: Props) {
     if (!editTarget) return;
     setEditError('');
     startTransition(async () => {
-      const res = await fetch(`/api/movies/${editTarget._id}`, {
+      const res = await fetch(`/api/games/${editTarget._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildPayload(editForm)),
@@ -84,32 +82,31 @@ export default function MoviesManager({ movies: initial }: Props) {
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
-        setEditError(data.error || 'Failed to update movie');
+        setEditError(data.error || 'Failed to update game');
       }
     });
   }
 
-  function handleDelete(movie: Movie) {
-    if (!confirm(`Delete "${movie.title}"? This cannot be undone.`)) return;
+  function handleDelete(game: Game) {
+    if (!confirm(`Delete "${game.title}"? This cannot be undone.`)) return;
     startTransition(async () => {
-      const res = await fetch(`/api/movies/${movie._id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/games/${game._id}`, { method: 'DELETE' });
       if (res.ok) {
-        setMovies((prev) => prev.filter((m) => m._id !== movie._id));
+        setGames((prev) => prev.filter((g) => g._id !== game._id));
       }
     });
   }
 
-  const filtered = movies.filter((m) =>
-    m.title.toLowerCase().includes(search.toLowerCase())
+  const filtered = games.filter((g) =>
+    g.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="p-6">
-      {/* Toolbar */}
       <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
         <div>
-          <h1 className="text-white text-2xl font-bold">Movies</h1>
-          <p className="text-zinc-500 text-sm mt-0.5">{movies.length} total</p>
+          <h1 className="text-white text-2xl font-bold">Games</h1>
+          <p className="text-zinc-500 text-sm mt-0.5">{games.length} total</p>
         </div>
         <div className="flex items-center gap-3">
           <input
@@ -119,17 +116,21 @@ export default function MoviesManager({ movies: initial }: Props) {
             onChange={(e) => setSearch(e.target.value)}
             className="w-52 rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
-          <Button onClick={() => { setAddForm(EMPTY_FORM); setAddError(''); setAddOpen(true); }} size="sm" className="gap-2 shrink-0">
+          <Button
+            onClick={() => { setAddForm(EMPTY_GAME_FORM); setAddError(''); setAddOpen(true); }}
+            size="sm"
+            className="gap-2 shrink-0"
+          >
             <Plus size={16} aria-hidden="true" />
-            Add Movie
+            Add Game
           </Button>
         </div>
       </div>
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-zinc-600">
-          <Film size={48} className="mb-3 opacity-40" aria-hidden="true" />
-          <p className="text-sm">{search ? 'No movies match your search.' : 'No movies yet. Add one above.'}</p>
+          <Gamepad2 size={48} className="mb-3 opacity-40" aria-hidden="true" />
+          <p className="text-sm">{search ? 'No games match your search.' : 'No games yet. Add one above.'}</p>
         </div>
       ) : (
         <div className="rounded-xl border border-zinc-800 overflow-hidden">
@@ -138,42 +139,56 @@ export default function MoviesManager({ movies: initial }: Props) {
               <thead>
                 <tr className="bg-zinc-800/60 border-b border-zinc-700 text-left text-zinc-400">
                   <th className="px-4 py-3 font-medium">Title</th>
-                  <th className="px-4 py-3 font-medium">Year</th>
-                  <th className="px-4 py-3 font-medium">Type</th>
+                  <th className="px-4 py-3 font-medium">Category</th>
                   <th className="px-4 py-3 font-medium">Rating</th>
+                  <th className="px-4 py-3 font-medium">Legal Status</th>
+                  <th className="px-4 py-3 font-medium">Platforms</th>
                   <th className="px-4 py-3 font-medium sr-only">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800">
-                {filtered.map((movie) => (
-                  <tr key={movie._id} className="hover:bg-zinc-800/40 transition-colors">
-                    <td className="px-4 py-3 text-white font-medium max-w-[220px] truncate">{movie.title}</td>
-                    <td className="px-4 py-3 text-zinc-400">{movie.year ?? '—'}</td>
+                {filtered.map((game) => (
+                  <tr key={game._id} className="hover:bg-zinc-800/40 transition-colors">
+                    <td className="px-4 py-3 text-white font-medium max-w-[220px] truncate">{game.title}</td>
+                    <td className="px-4 py-3 text-zinc-400 max-w-[200px] truncate">{game.category ?? '—'}</td>
                     <td className="px-4 py-3">
-                      <Badge variant={movie.isSeries ? 'default' : 'outline'} className="text-[11px]">
-                        {movie.isSeries ? 'Series' : 'Movie'}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      {movie.rating != null ? (
+                      {game.rating != null ? (
                         <span className="flex items-center gap-1 text-yellow-400 text-xs font-bold">
                           <Star size={11} fill="currentColor" aria-hidden="true" />
-                          {movie.rating.toFixed(1)}
+                          {game.rating.toFixed(1)}
                         </span>
                       ) : <span className="text-zinc-600">—</span>}
                     </td>
                     <td className="px-4 py-3">
+                      {game.legalStatus ? (
+                        <span
+                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase ${
+                            game.legalStatus.toLowerCase().includes('restricted')
+                              ? 'bg-red-600/20 text-red-400'
+                              : 'bg-green-600/20 text-green-400'
+                          }`}
+                        >
+                          {game.legalStatus}
+                        </span>
+                      ) : (
+                        <span className="text-zinc-600">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-zinc-400">
+                      {game.platform?.length > 0 ? game.platform.join(', ') : '—'}
+                    </td>
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2 justify-end">
                         <button
-                          onClick={() => openEdit(movie)}
-                          aria-label={`Edit ${movie.title}`}
+                          onClick={() => openEdit(game)}
+                          aria-label={`Edit ${game.title}`}
                           className="text-zinc-500 hover:text-yellow-400 transition-colors"
                         >
                           <Pencil size={15} aria-hidden="true" />
                         </button>
                         <button
-                          onClick={() => handleDelete(movie)}
-                          aria-label={`Delete ${movie.title}`}
+                          onClick={() => handleDelete(game)}
+                          aria-label={`Delete ${game.title}`}
                           disabled={isPending}
                           className="text-zinc-500 hover:text-red-400 transition-colors disabled:opacity-30"
                         >
@@ -189,11 +204,10 @@ export default function MoviesManager({ movies: initial }: Props) {
         </div>
       )}
 
-      {/* Add modal */}
-      <MovieForm
+      <GameForm
         open={addOpen}
         onOpenChange={setAddOpen}
-        title="Add Movie"
+        title="Add Game"
         form={addForm}
         onChange={setAddForm}
         onSubmit={handleAdd}
@@ -201,8 +215,7 @@ export default function MoviesManager({ movies: initial }: Props) {
         error={addError}
       />
 
-      {/* Edit modal */}
-      <MovieForm
+      <GameForm
         open={editOpen}
         onOpenChange={setEditOpen}
         title={`Edit: ${editTarget?.title ?? ''}`}

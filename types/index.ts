@@ -50,3 +50,27 @@ export interface JwtPayload {
   id: string;
   isAdmin: boolean;
 }
+
+export interface Game {
+  _id: string;
+  title: string;
+  category?: string;
+  description?: string;
+  img?: string;
+  legalStatus?: string;
+  platform: string[];
+  countriesBanned: string[];
+  views: number;
+  rating?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GameList {
+  _id: string;
+  title: string;
+  content: string[];
+  games: Game[];
+  createdAt: string;
+  updatedAt: string;
+}

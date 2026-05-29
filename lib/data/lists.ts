@@ -2,8 +2,9 @@ import type { PipelineStage } from 'mongoose';
 import { connectDB } from '@/lib/db';
 import List from '@/lib/models/List';
 import Movie from '@/lib/models/Movie';
+import Game from '@/lib/models/Game';
 import { serialize } from '@/lib/utils';
-import type { Movie as MovieType, MovieList as MovieListType } from '@/types';
+import type { Movie as MovieType, MovieList as MovieListType, GameList as GameListType } from '@/types';
 
 export const PAGE_SIZE = 24;
 
@@ -102,4 +103,16 @@ export async function getEnrichedLists(filters: ListFilters = {}): Promise<Movie
     })
   );
   return serialize(enriched) as unknown as MovieListType[];
+}
+
+export async function getEnrichedGameLists(): Promise<GameListType[]> {
+  await connectDB();
+  const lists = await List.find({ type: 'game' }).sort({ createdAt: -1 }).lean();
+  const enriched = await Promise.all(
+    lists.map(async (list) => {
+      const games = await Game.find({ _id: { $in: list.content } }).lean();
+      return { ...list, games: serialize(games) };
+    })
+  );
+  return serialize(enriched.filter((l) => l.games.length > 0)) as unknown as GameListType[];
 }
