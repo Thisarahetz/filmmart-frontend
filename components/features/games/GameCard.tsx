@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
 import type { Game } from '@/types';
+import { trackGameView } from '@/lib/utils/trackView';
 
 interface Props {
   game: Game;
@@ -18,6 +19,7 @@ export default function GameCard({ game }: Props) {
   return (
     <Link
       href={`/games/${game._id}`}
+      onClick={() => trackGameView(game._id)}
       className="group relative block shrink-0 w-[160px] rounded-md overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
       aria-label={`View ${game.title}`}
     >

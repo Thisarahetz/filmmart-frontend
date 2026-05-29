@@ -57,6 +57,7 @@ export interface Game {
   category?: string;
   description?: string;
   img?: string;
+  video?: string;
   legalStatus?: string;
   platform: string[];
   countriesBanned: string[];

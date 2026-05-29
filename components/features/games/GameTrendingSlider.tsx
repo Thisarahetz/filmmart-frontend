@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import GameCard from './GameCard';
+import GameTrendingCard from './GameTrendingCard';
 import type { Game } from '@/types';
 
 interface Props {
@@ -47,9 +47,9 @@ export default function GameTrendingSlider({ games, title = 'Trending Now' }: Pr
           className="flex gap-2.5 overflow-x-auto px-4 lg:px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           role="list"
         >
-          {games.map((game) => (
+          {games.map((game, i) => (
             <div key={game._id} role="listitem" className="shrink-0">
-              <GameCard game={game} />
+              <GameTrendingCard game={game} rank={i + 1} />
             </div>
           ))}
         </div>

@@ -7,6 +7,7 @@ import { Search, Star, Film, Tv, Gamepad2 } from 'lucide-react';
 import { searchMovies, searchGames } from '@/lib/data/search';
 import type { Movie, Game } from '@/types';
 import AdBanner from '@/components/ads/AdBanner';
+import MobileSearchInput from '@/components/features/search/MobileSearchInput';
 
 interface Props {
   searchParams: Promise<{ q?: string; type?: string }>;
@@ -129,6 +130,11 @@ export default async function SearchPage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-black px-4 lg:px-6 py-6">
+      {/* Mobile-only search input (navbar SearchBox is hidden on small screens) */}
+      <div className="mb-4">
+        <MobileSearchInput defaultValue={query} type={type} />
+      </div>
+
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 text-zinc-400 text-sm mb-3">
@@ -143,10 +149,10 @@ export default async function SearchPage({ searchParams }: Props) {
           )}
         </div>
 
-        {/* Films / Games top tabs */}
+        {/* Movies / Games top tabs */}
         <div className="flex items-center gap-2" role="group" aria-label="Search category">
           {[
-            { label: 'Films', value: '',     icon: Film     },
+            { label: 'Movies', value: '',     icon: Film     },
             { label: 'Games', value: 'game', icon: Gamepad2 },
           ].map(({ label, value, icon: Icon }) => {
             const isActive = type === value || (value === '' && !isGames);
@@ -171,9 +177,9 @@ export default async function SearchPage({ searchParams }: Props) {
           })}
         </div>
 
-        {/* Films sub-tabs: All / Movies / Series */}
+        {/* Movies sub-tabs: All / Movies / Series */}
         {!isGames && query && (
-          <div className="flex items-center gap-2 mt-2 ml-1" role="group" aria-label="Filter films">
+          <div className="flex items-center gap-2 mt-2 ml-1" role="group" aria-label="Filter movies">
             {[
               { label: 'All',    value: ''       },
               { label: 'Movies', value: 'movie'  },
@@ -202,39 +208,38 @@ export default async function SearchPage({ searchParams }: Props) {
         )}
       </div>
 
-      {/* Ad */}
-      {query && (
-        <AdBanner
-          slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SEARCH ?? ''}
-          format="horizontal"
-          className="mb-6"
-        />
-      )}
-
       {/* Results */}
       {!query ? (
         <div className="flex flex-col items-center justify-center py-24 text-zinc-600">
           <Search size={48} className="mb-3 opacity-30" aria-hidden="true" />
-          <p className="text-sm">Use the search bar above to find films and games.</p>
+          <p className="text-sm">Use the search bar above to find movies and games.</p>
         </div>
       ) : resultCount === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-zinc-600">
           <Search size={48} className="mb-3 opacity-30" aria-hidden="true" />
           <p className="text-base font-medium text-zinc-400 mb-1">No results found</p>
           <p className="text-sm">
-            No {isGames ? 'games' : 'films'} match &ldquo;{query}&rdquo;.
+            No {isGames ? 'games' : 'movies'} match &ldquo;{query}&rdquo;.
           </p>
           <Link href={`/search?q=${encodeURIComponent(query)}`} className="mt-4 text-yellow-400 text-sm hover:underline">
-            Search in Films
+            Search in Movies
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3 lg:gap-4">
-          {isGames
-            ? games.map((game) => <GameCard key={game._id} game={game} />)
-            : movies.map((movie) => <FilmCard key={movie._id} movie={movie} />)
-          }
-        </div>
+        <>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3 lg:gap-4">
+            {isGames
+              ? games.map((game) => <GameCard key={game._id} game={game} />)
+              : movies.map((movie) => <FilmCard key={movie._id} movie={movie} />)
+            }
+          </div>
+          {/* Ad below results — hidden on mobile */}
+          <AdBanner
+            slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SEARCH ?? ''}
+            format="horizontal"
+            className="mt-8"
+          />
+        </>
       )}
     </div>
   );

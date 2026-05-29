@@ -5,6 +5,7 @@ export interface IGame extends Document {
   category?: string;
   description?: string;
   img?: string;
+  video?: string;
   legalStatus?: string;
   platform: string[];
   countriesBanned: string[];
@@ -18,6 +19,7 @@ const GameSchema = new Schema<IGame>(
     category: String,
     description: String,
     img: String,
+    video: String,
     legalStatus: String,
     platform: { type: [String], default: [] },
     countriesBanned: { type: [String], default: [] },

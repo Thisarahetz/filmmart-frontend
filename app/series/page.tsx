@@ -1,9 +1,11 @@
 export const dynamic = 'force-dynamic';
 
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { getEnrichedLists, getCategoryMovies } from '@/lib/data/lists';
 import MovieList from '@/components/features/movies/MovieList';
 import CategoryGrid from '@/components/features/movies/CategoryGrid';
+import MobileCategoryBar from '@/components/features/mobile/MobileCategoryBar';
 
 export const metadata: Metadata = {
   title: 'Series',
@@ -27,6 +29,9 @@ export default async function SeriesPage({ searchParams }: Props) {
     const data = await getCategoryMovies(genre, page, 'series');
     return (
       <div className="bg-black min-h-screen">
+        <Suspense fallback={null}>
+          <MobileCategoryBar type="series" basePath="/series" />
+        </Suspense>
         <CategoryGrid
           data={data}
           genre={genre}
@@ -41,11 +46,14 @@ export default async function SeriesPage({ searchParams }: Props) {
   const lists = await getEnrichedLists({ type: 'series' });
 
   return (
-    <div className="bg-black min-h-screen pt-4 pb-10">
+    <div className="bg-black min-h-screen pt-0 pb-10">
+      <Suspense fallback={null}>
+        <MobileCategoryBar type="series" basePath="/series" />
+      </Suspense>
       {lists.length === 0 ? (
         <p className="text-center text-gray-500 py-16">No series found.</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 pt-4">
           {lists.map((list) => (
             <MovieList key={list._id} list={list} />
           ))}

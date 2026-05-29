@@ -17,6 +17,7 @@ function buildPayload(form: GameFormData) {
     category: form.category || undefined,
     description: form.description || undefined,
     img: form.img || undefined,
+    video: form.video || undefined,
     legalStatus: form.legalStatus || undefined,
     platform: form.platform,
     countriesBanned: form.countriesBanned

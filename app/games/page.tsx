@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -8,6 +9,7 @@ import { getGamesByCategory, getTrendingGames } from '@/lib/data/games';
 import { getEnrichedGameLists } from '@/lib/data/lists';
 import GameList from '@/components/features/games/GameList';
 import GameTrendingSlider from '@/components/features/games/GameTrendingSlider';
+import MobileCategoryBar from '@/components/features/mobile/MobileCategoryBar';
 import type { Game } from '@/types';
 
 export const metadata: Metadata = {
@@ -179,6 +181,9 @@ export default async function GamesPage({ searchParams }: Props) {
 
     return (
       <div className="bg-black min-h-screen">
+        <Suspense fallback={null}>
+          <MobileCategoryBar type="games" basePath="/games" />
+        </Suspense>
         <div className="px-4 lg:px-6 py-6">
           <div className="flex items-baseline gap-3 mb-6">
             <h1 className="text-yellow-400 text-2xl font-bold">{matchedCategory}</h1>
@@ -209,6 +214,9 @@ export default async function GamesPage({ searchParams }: Props) {
 
   return (
     <div className="bg-black min-h-screen pb-10">
+      <Suspense fallback={null}>
+        <MobileCategoryBar type="games" basePath="/games" />
+      </Suspense>
       <GameTrendingSlider games={trendingGames} />
       {gameLists.length === 0 ? (
         <p className="text-center text-gray-500 py-16">

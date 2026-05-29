@@ -65,11 +65,7 @@ export default function Sidebar() {
   const searchParams = useSearchParams();
   const currentGenre = searchParams.get('genre') ?? '';
 
-  const genreBase = pathname.startsWith('/movies')
-    ? '/movies'
-    : pathname.startsWith('/series')
-      ? '/series'
-      : '/';
+  const genreBase = '/movies';
 
   return (
     <aside
@@ -83,7 +79,7 @@ export default function Sidebar() {
         </p>
         <nav>
           {NAV_LINKS.map(({ label, href, icon: Icon }) => {
-            const isActive = pathname === href && !currentGenre;
+            const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
             return (
               <Link
                 key={href}

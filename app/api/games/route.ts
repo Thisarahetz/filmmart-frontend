@@ -9,6 +9,7 @@ const schema = z.object({
   category: z.string().optional(),
   description: z.string().optional(),
   img: z.string().url().optional().or(z.literal('')),
+  video: z.string().optional(),
   legalStatus: z.string().optional(),
   platform: z.array(z.string()).default([]),
   countriesBanned: z.array(z.string()).default([]),

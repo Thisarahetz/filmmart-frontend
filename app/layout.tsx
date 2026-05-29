@@ -6,6 +6,7 @@ import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import Navbar from '@/components/features/navbar/Navbar';
 import Sidebar from '@/components/features/sidebar/Sidebar';
+import MobileBottomNav from '@/components/features/navbar/MobileBottomNav';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -52,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Skip to main content
           </a>
           <Navbar />
-          <div className="flex min-h-screen pt-14">
+          <div className="flex min-h-screen pt-14 pb-16 lg:pb-0">
             <Suspense fallback={null}>
               <Sidebar />
             </Suspense>
@@ -60,6 +61,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {children}
             </main>
           </div>
+          <Suspense fallback={null}>
+            <MobileBottomNav />
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>

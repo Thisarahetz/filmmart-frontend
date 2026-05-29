@@ -108,7 +108,7 @@ export default function SearchBox() {
                 {cat === 'games'
                   ? <Gamepad2 size={13} aria-hidden="true" />
                   : <Film size={13} aria-hidden="true" />}
-                {cat === 'games' ? 'Games' : 'Films'}
+                {cat === 'games' ? 'Games' : 'Movies'}
               </button>
             </li>
           ))}
@@ -132,7 +132,7 @@ export default function SearchBox() {
             {category === 'games'
               ? <Gamepad2 size={13} aria-hidden="true" />
               : <Film size={13} aria-hidden="true" />}
-            <span>{category === 'games' ? 'Games' : 'Films'}</span>
+            <span>{category === 'games' ? 'Games' : 'Movies'}</span>
             <ChevronDown size={11} aria-hidden="true" />
           </button>
         </div>

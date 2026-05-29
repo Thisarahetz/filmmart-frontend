@@ -1,10 +1,12 @@
 export const dynamic = 'force-dynamic';
 
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { getEnrichedLists, getCategoryMovies, getTrendingMovies } from '@/lib/data/lists';
 import MovieList from '@/components/features/movies/MovieList';
 import CategoryGrid from '@/components/features/movies/CategoryGrid';
 import TrendingSlider from '@/components/features/slider/TrendingSlider';
+import MobileCategoryBar from '@/components/features/mobile/MobileCategoryBar';
 
 export const metadata: Metadata = {
   title: 'Movies',
@@ -28,6 +30,9 @@ export default async function MoviesPage({ searchParams }: Props) {
     const data = await getCategoryMovies(genre, page, 'movie');
     return (
       <div className="bg-black min-h-screen">
+        <Suspense fallback={null}>
+          <MobileCategoryBar type="movies" basePath="/movies" />
+        </Suspense>
         <CategoryGrid
           data={data}
           genre={genre}
@@ -46,6 +51,9 @@ export default async function MoviesPage({ searchParams }: Props) {
 
   return (
     <div className="bg-black min-h-screen pb-10">
+      <Suspense fallback={null}>
+        <MobileCategoryBar type="movies" basePath="/movies" />
+      </Suspense>
       <TrendingSlider movies={trending} />
       {lists.length === 0 ? (
         <p className="text-center text-gray-500 py-16">No movies found.</p>

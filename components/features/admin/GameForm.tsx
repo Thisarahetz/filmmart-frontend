@@ -10,6 +10,7 @@ export interface GameFormData {
   category: string;
   description: string;
   img: string;
+  video: string;
   legalStatus: string;
   platform: string[];
   countriesBanned: string;
@@ -21,6 +22,7 @@ export const EMPTY_GAME_FORM: GameFormData = {
   category: '',
   description: '',
   img: '',
+  video: '',
   legalStatus: 'Restricted',
   platform: [],
   countriesBanned: '',
@@ -33,6 +35,7 @@ export function gameToForm(game: Game): GameFormData {
     category: game.category ?? '',
     description: game.description ?? '',
     img: game.img ?? '',
+    video: game.video ?? '',
     legalStatus: game.legalStatus ?? 'Restricted',
     platform: game.platform ?? [],
     countriesBanned: (game.countriesBanned ?? []).join(', '),
@@ -152,6 +155,18 @@ export default function GameForm({
                 type="url"
                 value={form.img}
                 onChange={(e) => field('img', e.target.value)}
+                className="w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                placeholder="https://…"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-zinc-400 mb-1" htmlFor="gf-video">Video URL</label>
+              <input
+                id="gf-video"
+                type="url"
+                value={form.video}
+                onChange={(e) => field('video', e.target.value)}
                 className="w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="https://…"
               />
