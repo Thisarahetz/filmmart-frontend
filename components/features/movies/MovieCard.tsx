@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, Play } from 'lucide-react';
 import type { Movie } from '@/types';
+import { trackView } from '@/lib/utils/trackView';
 
 interface Props {
   movie: Movie;
@@ -21,6 +22,7 @@ export default function MovieCard({ movie }: Props) {
   return (
     <Link
       href={`/movies/${movie._id}`}
+      onClick={() => trackView(movie._id)}
       className="group relative block shrink-0 w-[160px] rounded-md overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
       aria-label={`View ${movie.title}`}
     >

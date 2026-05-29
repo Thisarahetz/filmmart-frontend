@@ -1,8 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
-import { resolveQualityBadge } from '@/lib/utils/quality';
 import type { Movie } from '@/types';
+import { trackView } from '@/lib/utils/trackView';
 
 interface Props {
   movie: Movie;
@@ -12,11 +14,10 @@ interface Props {
 const PLACEHOLDER = 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-poster.jpg';
 
 export default function TrendingCard({ movie, rank }: Props) {
-  const { text: qualityText, cls: qualityCls } = resolveQualityBadge(movie);
-
   return (
     <Link
       href={`/movies/${movie._id}`}
+      onClick={() => trackView(movie._id)}
       className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 rounded-md"
       aria-label={`${rank}. ${movie.title}`}
     >
@@ -32,13 +33,6 @@ export default function TrendingCard({ movie, rank }: Props) {
 
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300" />
 
-        {/* Quality badge — top-left */}
-        <span
-          className={`absolute top-1.5 left-1.5 ${qualityCls} text-white text-[9px] font-bold px-1.5 py-[3px] rounded uppercase leading-none max-w-[90px] truncate`}
-        >
-          {qualityText}
-        </span>
-
         {/* Rating badge — top-right */}
         <span className="absolute top-1.5 right-1.5 flex items-center gap-[3px] bg-yellow-400 text-black text-[10px] font-black px-1.5 py-[3px] rounded leading-none">
           <Star size={8} fill="currentColor" aria-hidden="true" />
@@ -46,14 +40,9 @@ export default function TrendingCard({ movie, rank }: Props) {
         </span>
 
         {/* Rank number — bottom-left */}
-        <span className="absolute bottom-7 left-2 text-white/50 text-[32px] font-black leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] select-none pointer-events-none">
+        <span className="absolute bottom-2 left-2 text-white/50 text-[32px] font-black leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] select-none pointer-events-none">
           {rank}
         </span>
-
-        {/* Category strip — bottom edge */}
-        <div className="absolute bottom-0 left-0 right-0 bg-green-700 text-white text-[9px] font-bold uppercase tracking-wide text-center py-[5px] leading-none">
-          {movie.isSeries ? 'ORIGINAL SERIES' : 'ORIGINAL WEB'}
-        </div>
       </div>
 
       {/* Title row below poster */}

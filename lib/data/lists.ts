@@ -12,7 +12,11 @@ export interface ListFilters {
 
 export async function getTrendingMovies(limit = 20): Promise<MovieType[]> {
   await connectDB();
-  const movies = await Movie.find().sort({ createdAt: -1 }).limit(limit).lean();
+  // Sort by click views first; fall back to rating for unclicked movies
+  const movies = await Movie.find()
+    .sort({ views: -1, rating: -1 })
+    .limit(limit)
+    .lean();
   return serialize(movies) as unknown as MovieType[];
 }
 

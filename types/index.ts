@@ -14,6 +14,7 @@ export interface Movie {
   quality?: string;
   isSeries: boolean;
   tags: string[];
+  views?: number;
   country?: string;
   duration?: string;
   story?: string;

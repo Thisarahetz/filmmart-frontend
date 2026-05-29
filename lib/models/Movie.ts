@@ -39,6 +39,7 @@ const MovieSchema = new Schema<IMovie>(
     quality: String,
     isSeries: { type: Boolean, default: false },
     tags: { type: [String], default: [], index: true },
+    views: { type: Number, default: 0, index: true },
     country: String,
     duration: String,
     story: String,
