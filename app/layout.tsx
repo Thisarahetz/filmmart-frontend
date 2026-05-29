@@ -7,6 +7,8 @@ import { ThemeProvider } from 'next-themes';
 import Navbar from '@/components/features/navbar/Navbar';
 import Sidebar from '@/components/features/sidebar/Sidebar';
 import MobileBottomNav from '@/components/features/navbar/MobileBottomNav';
+import MobileStickyAd from '@/components/ads/MobileStickyAd';
+import MobileInterstitialAd from '@/components/ads/MobileInterstitialAd';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -64,6 +66,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Suspense fallback={null}>
             <MobileBottomNav />
           </Suspense>
+          {/* Mobile ads — sticky banner above bottom nav + once-per-session interstitial */}
+          <MobileStickyAd />
+          <MobileInterstitialAd />
         </ThemeProvider>
       </body>
     </html>
