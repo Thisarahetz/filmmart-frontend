@@ -5,6 +5,40 @@ import Movie from '@/lib/models/Movie';
 import { serialize } from '@/lib/utils';
 import type { Movie as MovieType, MovieList as MovieListType } from '@/types';
 
+export const PAGE_SIZE = 24;
+
+export interface CategoryPage {
+  movies: MovieType[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+export async function getCategoryMovies(
+  genre: string,
+  page = 1,
+  type?: string
+): Promise<CategoryPage> {
+  await connectDB();
+
+  const filter: Record<string, unknown> = { tags: genre };
+  if (type === 'movie')  filter.isSeries = false;
+  if (type === 'series') filter.isSeries = true;
+
+  const skip = (page - 1) * PAGE_SIZE;
+  const [movies, total] = await Promise.all([
+    Movie.find(filter).sort({ rating: -1 }).skip(skip).limit(PAGE_SIZE).lean(),
+    Movie.countDocuments(filter),
+  ]);
+
+  return {
+    movies: serialize(movies) as unknown as MovieType[],
+    total,
+    page,
+    totalPages: Math.ceil(total / PAGE_SIZE),
+  };
+}
+
 export interface ListFilters {
   type?: string;
   genre?: string;
