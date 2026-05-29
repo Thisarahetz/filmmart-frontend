@@ -138,8 +138,9 @@ async function migrate() {
     .lean();
 
   // Filter out movies whose images already live on MinIO
-  const toMigrate = movies.filter(
-    (m: { img?: string; imgSm?: string }) => isExternal(m.img) || isExternal(m.imgSm)
+  type MovieDoc = { _id: mongoose.Types.ObjectId; title: string; img?: string; imgSm?: string };
+  const toMigrate = (movies as unknown as MovieDoc[]).filter(
+    (m) => isExternal(m.img) || isExternal(m.imgSm)
   );
 
   console.log(`Found ${toMigrate.length} movies with external image URLs.\n`);

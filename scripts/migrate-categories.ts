@@ -239,7 +239,7 @@ async function run() {
     title:   'Top Rated',
     type:    'movie',
     genre:   undefined,
-    content: topRated.map((d: { _id: mongoose.Types.ObjectId }) => d._id.toString()),
+    content: (topRated as { _id: mongoose.Types.ObjectId }[]).map((d) => d._id.toString()),
   });
 
   // Per-category lists
@@ -251,7 +251,7 @@ async function run() {
       title:   label,
       type:    'movie',
       genre:   slug,
-      content: docs.map((d: { _id: mongoose.Types.ObjectId }) => d._id.toString()),
+      content: (docs as { _id: mongoose.Types.ObjectId }[]).map((d) => d._id.toString()),
     });
   }
 

@@ -15,7 +15,7 @@ export async function GET(
 
   await connectDB();
 
-  const movie = await Movie.findById(id).select('tags').lean();
+  const movie = await Movie.findById(id).select('tags').lean() as { tags?: string[] } | null;
   if (!movie || !movie.tags?.length) {
     return NextResponse.json([]);
   }

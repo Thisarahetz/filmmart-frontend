@@ -188,7 +188,7 @@ async function seed() {
       title: tag.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
       type:  'movie',
       genre: tag,
-      content: docs.map((d: { _id: mongoose.Types.ObjectId }) => d._id.toString()),
+      content: (docs as unknown as { _id: mongoose.Types.ObjectId }[]).map((d) => d._id.toString()),
     });
   }
 
@@ -203,7 +203,7 @@ async function seed() {
     title:   'Top Rated',
     type:    'movie',
     genre:   undefined as unknown as string,
-    content: topRated.map((d: { _id: mongoose.Types.ObjectId }) => d._id.toString()),
+    content: (topRated as unknown as { _id: mongoose.Types.ObjectId }[]).map((d) => d._id.toString()),
   });
 
   await List.insertMany(lists, { ordered: false });

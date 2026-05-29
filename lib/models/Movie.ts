@@ -15,6 +15,7 @@ export interface IMovie extends Document {
   quality?: string;
   isSeries: boolean;
   tags: string[];
+  views?: number;
   country?: string;
   duration?: string;
   story?: string;
