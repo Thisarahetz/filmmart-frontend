@@ -7,6 +7,9 @@ import type { Metadata } from 'next';
 import { ArrowLeft, Globe, Monitor } from 'lucide-react';
 import { connectDB } from '@/lib/db';
 import Game from '@/lib/models/Game';
+import User from '@/lib/models/User';
+import { getAuthUser } from '@/lib/auth';
+import CommentSection from '@/components/features/comments/CommentSection';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { serialize } from '@/lib/utils';
@@ -46,8 +49,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function GameDetailPage({ params }: Props) {
   const { id } = await params;
-  const game = await getGame(id);
+  const [game, authUser] = await Promise.all([getGame(id), getAuthUser()]);
   if (!game) notFound();
+
+  await connectDB();
+  const dbUser = authUser
+    ? await User.findById(authUser.id).select('username').lean<{ username: string }>()
+    : null;
+  const authUsername = dbUser?.username;
 
   const isRestricted = game.legalStatus?.toLowerCase().includes('restricted');
 
@@ -118,6 +127,13 @@ export default async function GameDetailPage({ params }: Props) {
             </div>
           </div>
         )}
+        <CommentSection
+          contentType="game"
+          contentId={id}
+          currentUserId={authUser?.id}
+          currentUsername={authUsername}
+          isAdmin={authUser?.isAdmin}
+        />
       </div>
     </div>
   );

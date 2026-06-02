@@ -67,6 +67,19 @@ export interface Game {
   updatedAt: string;
 }
 
+export interface Comment {
+  _id: string;
+  contentType: 'movie' | 'game';
+  contentId: string;
+  userId: string;
+  username: string;
+  text: string;
+  parentId: string | null;
+  reactions: Record<string, string[]>;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface GameList {
   _id: string;
   title: string;

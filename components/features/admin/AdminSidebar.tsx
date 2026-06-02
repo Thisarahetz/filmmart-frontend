@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Film, List, Users, ExternalLink, Gamepad2 } from 'lucide-react';
+import { LayoutDashboard, Film, List, Users, ExternalLink, Gamepad2, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NAV = [
@@ -11,6 +11,7 @@ const NAV = [
   { href: '/admin/games', label: 'Games', icon: Gamepad2, exact: false },
   { href: '/admin/lists', label: 'Lists', icon: List, exact: false },
   { href: '/admin/users', label: 'Users', icon: Users, exact: false },
+  { href: '/admin/comments', label: 'Comments', icon: MessageSquare, exact: false },
 ];
 
 export default function AdminSidebar() {

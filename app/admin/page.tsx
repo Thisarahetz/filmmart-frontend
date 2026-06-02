@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import type { Metadata } from 'next';
-import { Film, List, Users, Star, Gamepad2 } from 'lucide-react';
+import { Film, List, Users, Star, Gamepad2, MessageSquare } from 'lucide-react';
 import { getAdminStats, getAdminMovies } from '@/lib/data/admin';
 import { Badge } from '@/components/ui/badge';
 
@@ -23,12 +23,13 @@ export default async function AdminDashboardPage() {
       <h1 className="text-white text-2xl font-bold mb-6">Dashboard</h1>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
         {[
           { label: 'Movies', value: stats.movies, icon: Film, color: 'text-blue-400' },
           { label: 'Games', value: stats.games, icon: Gamepad2, color: 'text-yellow-400' },
           { label: 'Lists', value: stats.lists, icon: List, color: 'text-purple-400' },
           { label: 'Users', value: stats.users, icon: Users, color: 'text-green-400' },
+          { label: 'Comments', value: stats.comments, icon: MessageSquare, color: 'text-pink-400' },
         ].map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="bg-zinc-900 rounded-xl border border-zinc-800 p-5 flex items-center gap-4">
             <div className={`p-2.5 rounded-lg bg-zinc-800 ${color}`}>

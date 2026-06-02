@@ -7,11 +7,14 @@ import type { Metadata } from 'next';
 import { Star, StarOff, ArrowLeft, Calendar, Globe, Clock } from 'lucide-react';
 import { connectDB } from '@/lib/db';
 import Movie from '@/lib/models/Movie';
+import User from '@/lib/models/User';
+import { getAuthUser } from '@/lib/auth';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { serialize } from '@/lib/utils';
 import type { Movie as MovieType } from '@/types';
 import AdBanner from '@/components/ads/AdBanner';
+import CommentSection from '@/components/features/comments/CommentSection';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -99,11 +102,15 @@ function youtubeId(url: string): string | null {
 
 export default async function MovieDetailPage({ params }: Props) {
   const { id } = await params;
-  const movie = await getMovie(id);
+  const [movie, authUser] = await Promise.all([getMovie(id), getAuthUser()]);
   if (!movie) notFound();
 
   await connectDB();
-  const similar = await getSimilarMovies(movie);
+  const [similar, dbUser] = await Promise.all([
+    getSimilarMovies(movie),
+    authUser ? User.findById(authUser.id).select('username').lean<{ username: string }>() : null,
+  ]);
+  const authUsername = dbUser?.username;
 
   const videoId = movie.trailer ? youtubeId(movie.trailer) : null;
   const ratingDisplay = movie.rating ? (movie.rating / 2).toFixed(1) : null;
@@ -267,6 +274,14 @@ export default async function MovieDetailPage({ params }: Props) {
               </div>
             </aside>
           </div>
+
+          <CommentSection
+            contentType="movie"
+            contentId={id}
+            currentUserId={authUser?.id}
+            currentUsername={authUsername}
+            isAdmin={authUser?.isAdmin}
+          />
 
           {/* Similar Movies */}
           {similar.length > 0 && (

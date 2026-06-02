@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Facebook, Youtube, Twitter, Instagram, Film } from 'lucide-react';
 import SearchBox from '@/components/features/search/SearchBox';
+import UserMenu from '@/components/features/navbar/UserMenu';
 import { cn } from '@/lib/utils';
 
 const socialLinks = [
@@ -50,24 +51,28 @@ export default function Navbar() {
           <SearchBox />
         </div>
 
-        {/* Right: social icons */}
-        <nav aria-label="Social links">
-          <ul className="flex items-center gap-3" role="list">
-            {socialLinks.map(({ icon: Icon, label, href }) => (
-              <li key={label}>
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="text-white/80 hover:text-white transition-colors"
-                >
-                  <Icon size={18} aria-hidden="true" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        {/* Right: social icons + user menu */}
+        <div className="flex items-center gap-3">
+          <nav aria-label="Social links" className="hidden sm:block">
+            <ul className="flex items-center gap-3" role="list">
+              {socialLinks.map(({ icon: Icon, label, href }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="text-white/80 hover:text-white transition-colors"
+                  >
+                    <Icon size={18} aria-hidden="true" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <UserMenu />
+        </div>
       </div>
     </header>
   );

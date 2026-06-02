@@ -3,18 +3,20 @@ import Movie from '@/lib/models/Movie';
 import List from '@/lib/models/List';
 import User from '@/lib/models/User';
 import Game from '@/lib/models/Game';
+import Comment from '@/lib/models/Comment';
 import { serialize } from '@/lib/utils';
 import type { Movie as MovieType, MovieList, User as UserType, Game as GameType } from '@/types';
 
 export async function getAdminStats() {
   await connectDB();
-  const [movies, lists, users, games] = await Promise.all([
+  const [movies, lists, users, games, comments] = await Promise.all([
     Movie.countDocuments(),
     List.countDocuments(),
     User.countDocuments(),
     Game.countDocuments(),
+    Comment.countDocuments(),
   ]);
-  return { movies, lists, users, games };
+  return { movies, lists, users, games, comments };
 }
 
 export async function getAdminMovies(): Promise<MovieType[]> {
