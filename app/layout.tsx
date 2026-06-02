@@ -9,6 +9,12 @@ import Sidebar from '@/components/features/sidebar/Sidebar';
 import MobileBottomNav from '@/components/features/navbar/MobileBottomNav';
 import MobileStickyAd from '@/components/ads/MobileStickyAd';
 import MobileInterstitialAd from '@/components/ads/MobileInterstitialAd';
+import AgeVerification from '@/components/features/legal/AgeVerification';
+import ContentWarningBanner from '@/components/features/legal/ContentWarningBanner';
+import CookieConsentBanner from '@/components/features/legal/CookieConsentBanner';
+import Footer from '@/components/features/footer/Footer';
+import { HeaderProvider } from '@/components/features/layout/HeaderContext';
+import LayoutBody from '@/components/features/layout/LayoutBody';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -48,27 +54,34 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         )}
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:bg-yellow-400 focus:text-black focus:px-4 focus:py-2 focus:rounded-md focus:font-bold"
-          >
-            Skip to main content
-          </a>
-          <Navbar />
-          <div className="flex min-h-screen pt-14 pb-16 lg:pb-0">
+          <HeaderProvider>
+            <AgeVerification />
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:bg-yellow-400 focus:text-black focus:px-4 focus:py-2 focus:rounded-md focus:font-bold"
+            >
+              Skip to main content
+            </a>
+            {/* Banner renders fixed at top-0; Navbar sits at var(--banner-h) below it */}
+            <ContentWarningBanner />
+            <Navbar />
+            <LayoutBody>
+              <Suspense fallback={null}>
+                <Sidebar />
+              </Suspense>
+              <main id="main-content" className="flex-1 min-w-0 flex flex-col">
+                {children}
+                <Footer />
+              </main>
+            </LayoutBody>
             <Suspense fallback={null}>
-              <Sidebar />
+              <MobileBottomNav />
             </Suspense>
-            <main id="main-content" className="flex-1 min-w-0">
-              {children}
-            </main>
-          </div>
-          <Suspense fallback={null}>
-            <MobileBottomNav />
-          </Suspense>
-          {/* Mobile ads — sticky banner above bottom nav + once-per-session interstitial */}
-          <MobileStickyAd />
-          <MobileInterstitialAd />
+            {/* Mobile ads — sticky banner above bottom nav + once-per-session interstitial */}
+            <MobileStickyAd />
+            <MobileInterstitialAd />
+            <CookieConsentBanner />
+          </HeaderProvider>
         </ThemeProvider>
       </body>
     </html>

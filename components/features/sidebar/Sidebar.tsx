@@ -70,7 +70,11 @@ export default function Sidebar() {
   return (
     <aside
       aria-label="Site navigation"
-      className="hidden lg:flex flex-col w-52 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto bg-zinc-900 border-r border-zinc-800 py-4"
+      style={{
+        top: 'var(--header-h, 56px)',
+        height: 'calc(100vh - var(--header-h, 56px))',
+      }}
+      className="hidden lg:flex flex-col w-52 shrink-0 sticky overflow-y-auto bg-zinc-900 border-r border-zinc-800 py-4 transition-[top,height] duration-200"
     >
       {/* Browse */}
       <div className="px-3 mb-2">

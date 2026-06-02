@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, Play } from 'lucide-react';
+import { Heart, Play, Search } from 'lucide-react';
 import type { Movie } from '@/types';
 import { trackView } from '@/lib/utils/trackView';
 
@@ -40,13 +40,16 @@ export default function MovieCard({ movie }: Props) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         {/* Type badge — top left, always visible */}
-        <div className="absolute top-1.5 left-1.5">
+        <div className="absolute top-1.5 left-1.5 flex flex-col gap-1">
           <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${
             movie.isSeries
               ? 'bg-blue-600 text-white'
               : 'bg-yellow-500 text-black'
           }`}>
             {movie.isSeries ? 'Series' : 'Movie'}
+          </span>
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide bg-red-700 text-white">
+            18+
           </span>
         </div>
 
@@ -72,8 +75,22 @@ export default function MovieCard({ movie }: Props) {
         {/* Hover info — bottom */}
         <div className="absolute inset-x-0 bottom-0 p-2.5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
           {movie.desc && (
-            <p className="text-[10px] text-gray-200 line-clamp-2 leading-snug">{movie.desc}</p>
+            <p className="text-[10px] text-gray-200 line-clamp-2 leading-snug mb-1.5">{movie.desc}</p>
           )}
+          {movie.genre && (
+            <span className="inline-block text-[9px] bg-yellow-400/20 text-yellow-300 px-1.5 py-0.5 rounded mb-1.5">
+              {movie.genre}
+            </span>
+          )}
+          <div
+            role="button"
+            aria-label={`Find movies similar to ${movie.title}`}
+            className="flex items-center gap-1 text-[9px] text-white bg-yellow-400/20 hover:bg-yellow-400/40 rounded px-1.5 py-0.5 transition-colors w-fit"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Search size={9} aria-hidden="true" />
+            Find Similar
+          </div>
         </div>
       </div>
 

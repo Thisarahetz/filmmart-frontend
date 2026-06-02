@@ -3,9 +3,8 @@
 /* Client Component: needs scroll detection */
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { Facebook, Youtube, Twitter, Instagram } from 'lucide-react';
+import { Facebook, Youtube, Twitter, Instagram, Film } from 'lucide-react';
 import SearchBox from '@/components/features/search/SearchBox';
 import { cn } from '@/lib/utils';
 
@@ -28,8 +27,9 @@ export default function Navbar() {
   return (
     <header
       role="banner"
+      style={{ top: 'var(--banner-h, 0px)' }}
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-colors duration-300',
+        'fixed left-0 right-0 z-50 transition-[top,background-color] duration-200',
         scrolled
           ? 'bg-black border-b border-yellow-400'
           : 'bg-gradient-to-b from-black/60 to-transparent'
@@ -38,15 +38,13 @@ export default function Navbar() {
       <div className="flex items-center justify-between px-4 h-14 max-w-screen-2xl mx-auto">
         {/* Left: mobile menu + logo + search */}
         <div className="flex items-center gap-3">
-          <Link href="/" aria-label="Filmmart home">
-            <Image
-              src="https://i.ibb.co/v1MXJ2B/images.jpg"
-              alt="Filmmart logo"
-              width={70}
-              height={35}
-              className="h-8 w-auto object-contain"
-              priority
-            />
+          <Link href="/" aria-label="Filmmart home" className="flex items-center gap-1.5 group">
+            <div className="bg-yellow-400 rounded p-0.5">
+              <Film size={18} className="text-black" aria-hidden="true" />
+            </div>
+            <span className="text-white font-bold text-base tracking-tight group-hover:text-yellow-400 transition-colors">
+              Filmmart
+            </span>
           </Link>
 
           <SearchBox />
