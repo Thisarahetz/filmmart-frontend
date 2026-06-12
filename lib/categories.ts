@@ -166,6 +166,12 @@ export const MOVIE_CATEGORIES: Category[] = [
     intro:
       'Films driven by compelling female protagonists at the heart of the story. Browse the collection with ratings, trailers and where to watch each title.',
   },
+  {
+    slug: 'indian',
+    label: 'Indian',
+    intro:
+      'Bold, sensual cinema from India — erotic dramas, thrillers and adult-themed films across Hindi, Tamil, Telugu, Malayalam and more. Browse the collection with ratings, trailers and where to watch each title.',
+  },
 ];
 
 const BY_SLUG = new Map(MOVIE_CATEGORIES.map((c) => [c.slug, c]));

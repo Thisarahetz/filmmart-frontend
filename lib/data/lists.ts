@@ -45,10 +45,12 @@ export interface ListFilters {
   genre?: string;
 }
 
-export async function getTrendingMovies(limit = 20): Promise<MovieType[]> {
+export async function getTrendingMovies(limit = 20, isSeries?: boolean): Promise<MovieType[]> {
   await connectDB();
-  // Sort by click views first; fall back to rating for unclicked movies
-  const movies = await Movie.find()
+  // Sort by click views first; fall back to rating for unclicked titles.
+  const filter: Record<string, unknown> = {};
+  if (isSeries !== undefined) filter.isSeries = isSeries;
+  const movies = await Movie.find(filter)
     .sort({ views: -1, rating: -1 })
     .limit(limit)
     .lean();

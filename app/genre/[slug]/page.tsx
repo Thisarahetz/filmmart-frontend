@@ -49,7 +49,8 @@ export default async function GenrePage({ params, searchParams }: Props) {
   if (!category) notFound();
 
   const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
-  const data = await getCategoryMovies(slug, page, 'movie');
+  // Tag-based category: include both films and series.
+  const data = await getCategoryMovies(slug, page);
 
   return (
     <div className="bg-black min-h-screen">
@@ -59,7 +60,6 @@ export default async function GenrePage({ params, searchParams }: Props) {
       <CategoryGrid
         data={data}
         genre={slug}
-        type="movie"
         label={category.label}
         intro={category.intro}
         basePath={`/genre/${slug}`}

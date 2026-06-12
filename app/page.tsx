@@ -3,9 +3,11 @@ export const dynamic = 'force-dynamic';
 import { Fragment } from 'react';
 import type { Metadata } from 'next';
 import { getTrendingMovies, getEnrichedLists, getCategoryMovies } from '@/lib/data/lists';
+import { getTrendingGames } from '@/lib/data/games';
 import MovieList from '@/components/features/movies/MovieList';
 import CategoryGrid from '@/components/features/movies/CategoryGrid';
 import TrendingSlider from '@/components/features/slider/TrendingSlider';
+import GameTrendingSlider from '@/components/features/games/GameTrendingSlider';
 import AdBanner from '@/components/ads/AdBanner';
 
 export const metadata: Metadata = {
@@ -46,15 +48,19 @@ export default async function HomePage({ searchParams }: Props) {
     );
   }
 
-  // ── Home view: trending slider + list carousels ────────────────────────────
-  const [trendingMovies, lists] = await Promise.all([
-    getTrendingMovies(),
+  // ── Home view: trending sliders (movies / series / games) + list carousels ──
+  const [trendingMovies, trendingSeries, trendingGames, lists] = await Promise.all([
+    getTrendingMovies(20, false),
+    getTrendingMovies(20, true),
+    getTrendingGames(20),
     getEnrichedLists({ type }),
   ]);
 
   return (
     <div className="bg-black min-h-screen">
-      <TrendingSlider movies={trendingMovies} title="Trending Now" />
+      <TrendingSlider movies={trendingMovies} title="Trending Movies" />
+      <TrendingSlider movies={trendingSeries} title="Trending Series" />
+      <GameTrendingSlider games={trendingGames} title="Trending Games" />
 
       <AdBanner
         slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_BANNER ?? ''}

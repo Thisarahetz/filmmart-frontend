@@ -65,7 +65,9 @@ export default function Sidebar() {
   const searchParams = useSearchParams();
   const currentGenre = searchParams.get('genre') ?? '';
 
-  const genreBase = '/movies';
+  // Keep category filtering within the current section: on /series the chips
+  // filter series-only (/series?genre=…); elsewhere they filter movies.
+  const genreBase = pathname.startsWith('/series') ? '/series' : '/movies';
 
   return (
     <aside

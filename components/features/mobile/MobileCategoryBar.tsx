@@ -33,27 +33,34 @@ export default function MobileCategoryBar({ type, basePath }: Props) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  // Movies/series use SEO-friendly /genre/{slug} routes; games stay query-based.
-  const isGenreRoute = type !== 'games';
+  const paramKey = type === 'games' ? 'category' : 'genre';
 
   // "All" is active on the base listing page with no category selected.
-  const allActive = isGenreRoute
-    ? pathname === basePath && !searchParams.get('genre')
-    : pathname === basePath && !searchParams.get('category');
+  const allActive = pathname === basePath && !searchParams.get(paramKey);
 
-  const chips = isGenreRoute
-    ? MOVIE_CATEGORIES.map((c) => ({
-        key: c.slug,
-        label: c.label,
-        href: `/genre/${c.slug}`,
-        active: pathname === `/genre/${c.slug}`,
-      }))
-    : GAME_CATEGORIES.map((c) => ({
-        key: c.value,
-        label: c.label,
-        href: `${basePath}?category=${c.value}`,
-        active: searchParams.get('category') === c.value,
-      }));
+  // Movies use SEO-friendly /genre/{slug} pages; series & games filter in place
+  // (so series stay series-only and games stay games).
+  const chips =
+    type === 'movies'
+      ? MOVIE_CATEGORIES.map((c) => ({
+          key: c.slug,
+          label: c.label,
+          href: `/genre/${c.slug}`,
+          active: pathname === `/genre/${c.slug}`,
+        }))
+      : type === 'series'
+        ? MOVIE_CATEGORIES.map((c) => ({
+            key: c.slug,
+            label: c.label,
+            href: `${basePath}?genre=${c.slug}`,
+            active: searchParams.get('genre') === c.slug,
+          }))
+        : GAME_CATEGORIES.map((c) => ({
+            key: c.value,
+            label: c.label,
+            href: `${basePath}?category=${c.value}`,
+            active: searchParams.get('category') === c.value,
+          }));
 
   return (
     <div className="lg:hidden sticky top-14 z-30 bg-zinc-950/95 backdrop-blur border-b border-zinc-800">
