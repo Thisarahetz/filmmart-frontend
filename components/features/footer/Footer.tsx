@@ -20,9 +20,9 @@ const browseLinks = [
   { label: 'Movies', href: '/movies' },
   { label: 'Series', href: '/series' },
   { label: 'Games', href: '/games' },
-  { label: 'Erotic', href: '/movies?genre=erotic' },
-  { label: 'Thriller', href: '/movies?genre=thriller' },
-  { label: 'Horror', href: '/movies?genre=horror' },
+  { label: 'Erotic', href: '/genre/erotic' },
+  { label: 'Thriller', href: '/genre/thriller' },
+  { label: 'Horror', href: '/genre/horror' },
 ];
 
 export default function Footer() {

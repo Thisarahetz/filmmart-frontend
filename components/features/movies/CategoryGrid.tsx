@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Movie } from '@/types';
 import type { CategoryPage } from '@/lib/data/lists';
 import { trackView } from '@/lib/utils/trackView';
+import { cleanTitle } from '@/lib/utils';
 
 const PLACEHOLDER = 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-poster.jpg';
 
@@ -37,7 +38,7 @@ function MovieGridCard({ movie }: { movie: Movie }) {
 
       <div className="p-2">
         <p className="text-white text-xs font-medium line-clamp-2 leading-tight mb-1">
-          {movie.title}
+          {cleanTitle(movie.title)}
         </p>
         <div className="flex items-center gap-1.5 flex-wrap mb-1">
           {movie.genre && (
@@ -159,18 +160,24 @@ interface Props {
   type?: string;
   label: string;
   basePath?: string;
+  /** Optional editorial intro paragraph shown under the heading. */
+  intro?: string;
 }
 
-export default function CategoryGrid({ data, genre, type, label, basePath = '/' }: Props) {
+export default function CategoryGrid({ data, genre, type, label, basePath = '/', intro }: Props) {
   const { movies, total, page, totalPages } = data;
 
   return (
     <div className="px-4 lg:px-6 py-6">
       {/* Header */}
-      <div className="flex items-baseline gap-3 mb-6">
+      <div className={`flex items-baseline gap-3 ${intro ? 'mb-3' : 'mb-6'}`}>
         <h1 className="text-yellow-400 text-2xl font-bold">{label}</h1>
         <span className="text-zinc-500 text-sm">{total} movies</span>
       </div>
+
+      {intro && (
+        <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl mb-6">{intro}</p>
+      )}
 
       {movies.length === 0 ? (
         <p className="text-zinc-500 py-16 text-center">No movies found in this category.</p>

@@ -8,6 +8,7 @@ import { searchMovies, searchGames } from '@/lib/data/search';
 import type { Movie, Game } from '@/types';
 import AdBanner from '@/components/ads/AdBanner';
 import MobileSearchInput from '@/components/features/search/MobileSearchInput';
+import TrackedLink from '@/components/features/search/TrackedLink';
 
 interface Props {
   searchParams: Promise<{ q?: string; type?: string }>;
@@ -26,7 +27,9 @@ const PLACEHOLDER = 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-pos
 // ── Film result card ──────────────────────────────────────────────────────────
 function FilmCard({ movie }: { movie: Movie }) {
   return (
-    <Link
+    <TrackedLink
+      id={movie._id}
+      kind="movie"
       href={`/movies/${movie._id}`}
       className="group flex flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 rounded-lg"
       aria-label={movie.title}
@@ -61,7 +64,7 @@ function FilmCard({ movie }: { movie: Movie }) {
       <div className="mt-2 px-0.5">
         <p className="text-white text-xs font-semibold leading-snug line-clamp-2">{movie.title}</p>
       </div>
-    </Link>
+    </TrackedLink>
   );
 }
 
@@ -70,7 +73,9 @@ function GameCard({ game }: { game: Game }) {
   const isRestricted = game.legalStatus?.toLowerCase().includes('restricted');
 
   return (
-    <Link
+    <TrackedLink
+      id={game._id}
+      kind="game"
       href={`/games/${game._id}`}
       className="group flex flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 rounded-lg"
       aria-label={game.title}
@@ -111,7 +116,7 @@ function GameCard({ game }: { game: Game }) {
       <div className="mt-2 px-0.5">
         <p className="text-white text-xs font-semibold leading-snug line-clamp-2">{game.title}</p>
       </div>
-    </Link>
+    </TrackedLink>
   );
 }
 

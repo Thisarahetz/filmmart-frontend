@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
 import { Suspense } from 'react';
-import Script from 'next/script';
 import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import Navbar from '@/components/features/navbar/Navbar';
@@ -12,6 +11,8 @@ import MobileInterstitialAd from '@/components/ads/MobileInterstitialAd';
 import AgeVerification from '@/components/features/legal/AgeVerification';
 import ContentWarningBanner from '@/components/features/legal/ContentWarningBanner';
 import CookieConsentBanner from '@/components/features/legal/CookieConsentBanner';
+import { ConsentProvider } from '@/components/features/legal/ConsentContext';
+import AdSenseScripts from '@/components/ads/AdSenseScripts';
 import Footer from '@/components/features/footer/Footer';
 import { HeaderProvider } from '@/components/features/layout/HeaderContext';
 import LayoutBody from '@/components/features/layout/LayoutBody';
@@ -45,16 +46,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={roboto.variable}>
       <body className="bg-black text-white antialiased font-sans">
-        {process.env.NEXT_PUBLIC_ADSENSE_PUB_ID && (
-          <Script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_PUB_ID}`}
-            crossOrigin="anonymous"
-            strategy="afterInteractive"
-          />
-        )}
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <HeaderProvider>
+          <ConsentProvider>
+            <AdSenseScripts />
+            <HeaderProvider>
             <AgeVerification />
             <a
               href="#main-content"
@@ -81,7 +76,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <MobileStickyAd />
             <MobileInterstitialAd />
             <CookieConsentBanner />
-          </HeaderProvider>
+            </HeaderProvider>
+          </ConsentProvider>
         </ThemeProvider>
       </body>
     </html>

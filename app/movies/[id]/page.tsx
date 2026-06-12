@@ -1,4 +1,6 @@
-export const dynamic = 'force-dynamic';
+// Statically render movie pages and refresh them in the background (ISR).
+export const revalidate = 3600;
+export const dynamicParams = true;
 
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -7,17 +9,28 @@ import type { Metadata } from 'next';
 import { Star, StarOff, ArrowLeft, Calendar, Globe, Clock } from 'lucide-react';
 import { connectDB } from '@/lib/db';
 import Movie from '@/lib/models/Movie';
-import User from '@/lib/models/User';
-import { getAuthUser } from '@/lib/auth';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { serialize } from '@/lib/utils';
+import { serialize, titleWithYear, cleanTitle } from '@/lib/utils';
 import type { Movie as MovieType } from '@/types';
 import AdBanner from '@/components/ads/AdBanner';
 import CommentSection from '@/components/features/comments/CommentSection';
+import WatchProviders from '@/components/features/movies/WatchProviders';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+export async function generateStaticParams() {
+  try {
+    await connectDB();
+    const movies = await Movie.find({}, '_id').lean();
+    return movies.map((m) => ({ id: (m._id as { toString(): string }).toString() }));
+  } catch {
+    return []; // DB unavailable at build — pages render on demand via ISR
+  }
 }
 
 async function getMovie(id: string): Promise<MovieType | null> {
@@ -60,34 +73,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const movie = await getMovie(id);
   if (!movie) return { title: 'Not Found' };
 
+  const fullTitle = titleWithYear(movie.title, movie.year);
+  const pageTitle = `${fullTitle} – Where to Watch, Review | Filmmart`;
+  const description =
+    movie.desc?.slice(0, 160) ??
+    `Where to watch ${fullTitle} — streaming, rent and buy options, ratings, trailer and reviews on Filmmart.`;
+
   const keywords = [
     ...(movie.tags ?? []),
     movie.genre ?? '',
     movie.country ?? '',
     movie.year ?? '',
-    'similar movies',
-    'watch online',
+    'where to watch',
+    'streaming',
+    'review',
   ].filter(Boolean);
 
   return {
-    title: `${movie.title} – Watch & Find Similar Movies`,
-    description:
-      movie.desc ??
-      `Watch ${movie.title}${movie.year ? ` (${movie.year})` : ''}. Find similar movies by tags: ${(movie.tags ?? []).join(', ')}.`,
+    title: { absolute: pageTitle },
+    description,
     keywords,
     alternates: { canonical: `/movies/${id}` },
     openGraph: {
-      title: movie.title,
-      description:
-        movie.desc ??
-        `Find movies similar to ${movie.title}. Tags: ${(movie.tags ?? []).join(', ')}.`,
-      images: movie.img ? [{ url: movie.img, width: 700, height: 250 }] : [],
+      title: pageTitle,
+      description,
+      url: `${SITE_URL}/movies/${id}`,
+      siteName: 'Filmmart',
+      images: movie.img ? [{ url: movie.img, width: 700, height: 250, alt: fullTitle }] : [],
       type: movie.isSeries ? 'video.tv_show' : 'video.movie',
     },
     twitter: {
       card: 'summary_large_image',
-      title: movie.title,
-      description: movie.desc,
+      title: pageTitle,
+      description,
       images: movie.img ? [movie.img] : [],
     },
   };
@@ -102,16 +120,17 @@ function youtubeId(url: string): string | null {
 
 export default async function MovieDetailPage({ params }: Props) {
   const { id } = await params;
-  const [movie, authUser] = await Promise.all([getMovie(id), getAuthUser()]);
+  const movie = await getMovie(id);
   if (!movie) notFound();
 
-  await connectDB();
-  const [similar, dbUser] = await Promise.all([
-    getSimilarMovies(movie),
-    authUser ? User.findById(authUser.id).select('username').lean<{ username: string }>() : null,
-  ]);
-  const authUsername = dbUser?.username;
+  const similar = await getSimilarMovies(movie);
 
+  // Read pre-fetched TMDB data from the DB (populated by scripts/sync-tmdb.ts).
+  // No live TMDB call happens at build or request time.
+  const watchProviders = movie.watchProviders ?? null;
+  const hasWatchData = !!watchProviders && Object.keys(watchProviders).length > 0;
+
+  const fullTitle = titleWithYear(movie.title, movie.year);
   const videoId = movie.trailer ? youtubeId(movie.trailer) : null;
   const ratingDisplay = movie.rating ? (movie.rating / 2).toFixed(1) : null;
   const starsFull = movie.rating ? Math.round(movie.rating / 2) : 0;
@@ -120,9 +139,11 @@ export default async function MovieDetailPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': movie.isSeries ? 'TVSeries' : 'Movie',
     name: movie.title,
+    url: `${SITE_URL}/movies/${id}`,
     description: movie.desc,
     genre: movie.genre,
     dateCreated: movie.year,
+    datePublished: movie.year,
     countryOfOrigin: movie.country,
     duration: movie.duration,
     image: movie.img,
@@ -133,6 +154,7 @@ export default async function MovieDetailPage({ params }: Props) {
           ratingValue: movie.rating,
           bestRating: 10,
           worstRating: 0,
+          ratingCount: Math.max(movie.views ?? 1, 1),
         }
       : undefined,
   };
@@ -155,7 +177,7 @@ export default async function MovieDetailPage({ params }: Props) {
           </Button>
 
           <h1 className="text-yellow-400 text-2xl sm:text-3xl font-bold leading-tight mb-4">
-            {movie.title}
+            {fullTitle}
           </h1>
 
           {/* Meta badges */}
@@ -224,6 +246,9 @@ export default async function MovieDetailPage({ params }: Props) {
             </p>
           )}
 
+          {/* Where to Watch — cached TMDB streaming providers (see scripts/sync-tmdb.ts) */}
+          {hasWatchData && <WatchProviders movieId={id} providers={watchProviders} />}
+
           <AdBanner
             slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_DETAIL ?? ''}
             format="horizontal"
@@ -275,13 +300,7 @@ export default async function MovieDetailPage({ params }: Props) {
             </aside>
           </div>
 
-          <CommentSection
-            contentType="movie"
-            contentId={id}
-            currentUserId={authUser?.id}
-            currentUsername={authUsername}
-            isAdmin={authUser?.isAdmin}
-          />
+          <CommentSection contentType="movie" contentId={id} />
 
           {/* Similar Movies */}
           {similar.length > 0 && (
@@ -322,7 +341,7 @@ export default async function MovieDetailPage({ params }: Props) {
                     )}
                     <div className="p-2">
                       <p className="text-white text-xs font-medium line-clamp-2 leading-tight mb-1">
-                        {s.title}
+                        {cleanTitle(s.title)}
                       </p>
                       <div className="flex items-center gap-1.5 text-xs text-zinc-400">
                         {s.year && <span>{s.year}</span>}

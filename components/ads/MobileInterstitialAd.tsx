@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
+import { useConsent } from '@/components/features/legal/ConsentContext';
 
 declare global {
   interface Window { adsbygoogle: unknown[]; }
@@ -11,6 +12,7 @@ const SESSION_KEY = 'fm_interstitial_shown';
 const DELAY_MS    = 2500; // show 2.5s after first load
 
 export default function MobileInterstitialAd() {
+  const { hasConsent } = useConsent();
   const pubId  = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID;
   const slot   = process.env.NEXT_PUBLIC_ADSENSE_SLOT_INTERSTITIAL ?? '';
   const insRef = useRef<HTMLModElement>(null);
@@ -18,7 +20,7 @@ export default function MobileInterstitialAd() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!pubId || !slot) return;
+    if (!pubId || !slot || !hasConsent) return;
     if (sessionStorage.getItem(SESSION_KEY)) return; // already shown this session
 
     const timer = setTimeout(() => {
@@ -27,7 +29,7 @@ export default function MobileInterstitialAd() {
     }, DELAY_MS);
 
     return () => clearTimeout(timer);
-  }, [pubId, slot]);
+  }, [pubId, slot, hasConsent]);
 
   useEffect(() => {
     if (!visible || pushed.current) return;
@@ -46,7 +48,7 @@ export default function MobileInterstitialAd() {
     return () => observer.disconnect();
   }, [visible]);
 
-  if (!pubId || !slot || !visible) return null;
+  if (!pubId || !hasConsent || !slot || !visible) return null;
 
   return (
     <div

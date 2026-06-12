@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Heart, Play, Search } from 'lucide-react';
 import type { Movie } from '@/types';
 import { trackView } from '@/lib/utils/trackView';
+import { cleanTitle } from '@/lib/utils';
 
 interface Props {
   movie: Movie;
@@ -96,8 +97,8 @@ export default function MovieCard({ movie }: Props) {
 
       {/* Below poster — always visible */}
       <div className="bg-zinc-900 pt-1.5 pb-2 px-1.5">
-        <p className="text-white text-xs font-medium truncate leading-tight mb-1">
-          {movie.title}
+        <p className="text-white text-xs font-medium line-clamp-2 leading-tight mb-1">
+          {cleanTitle(movie.title)}
         </p>
 
         {/* Genre + Year row */}

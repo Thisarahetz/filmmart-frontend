@@ -1,4 +1,5 @@
 import mongoose, { Schema, type Document } from 'mongoose';
+import type { WatchProvidersByRegion } from '@/lib/tmdb';
 
 export interface IMovie extends Document {
   title: string;
@@ -22,6 +23,10 @@ export interface IMovie extends Document {
   style?: string;
   plot?: string;
   sourceUrl?: string;
+  tmdbId?: number;
+  /** Cached TMDB "Where to Watch" data, populated by scripts/sync-tmdb.ts. */
+  watchProviders?: WatchProvidersByRegion;
+  tmdbSyncedAt?: Date;
 }
 
 const MovieSchema = new Schema<IMovie>(
@@ -47,6 +52,9 @@ const MovieSchema = new Schema<IMovie>(
     style: String,
     plot: String,
     sourceUrl: String,
+    tmdbId: Number,
+    watchProviders: Schema.Types.Mixed,
+    tmdbSyncedAt: Date,
   },
   { timestamps: true }
 );

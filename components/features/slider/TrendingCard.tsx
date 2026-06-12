@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Star } from 'lucide-react';
 import type { Movie } from '@/types';
 import { trackView } from '@/lib/utils/trackView';
+import { titleWithYear } from '@/lib/utils';
 
 interface Props {
   movie: Movie;
@@ -47,9 +48,8 @@ export default function TrendingCard({ movie, rank }: Props) {
 
       {/* Title row below poster */}
       <div className="mt-1.5 w-[155px]">
-        <p className="text-white text-[11px] font-semibold truncate leading-tight">
-          {movie.title}
-          {movie.year ? ` (${movie.year})` : ''}
+        <p className="text-white text-[11px] font-semibold line-clamp-2 leading-tight">
+          {titleWithYear(movie.title, movie.year)}
         </p>
         <p className="text-gray-500 text-[10px] mt-0.5">
           {movie.isSeries ? 'TV Series' : 'Movie'}

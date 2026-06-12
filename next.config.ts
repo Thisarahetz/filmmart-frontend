@@ -8,6 +8,7 @@ const config: NextConfig = {
       { protocol: 'https', hostname: 'baiscopedownloads.co' },
       { protocol: 'https', hostname: 'bestsimilar.com' },
       { protocol: 'https', hostname: 'api.saferide.lk' },
+      { protocol: 'https', hostname: 'image.tmdb.org' },
     ],
   },
 };

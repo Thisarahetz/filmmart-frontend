@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
+import { useConsent } from '@/components/features/legal/ConsentContext';
 
 declare global {
   interface Window { adsbygoogle: unknown[]; }
 }
 
 export default function MobileStickyAd() {
+  const { hasConsent } = useConsent();
   const pubId  = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID;
   const slot   = process.env.NEXT_PUBLIC_ADSENSE_SLOT_STICKY ?? '';
   const insRef = useRef<HTMLModElement>(null);
@@ -15,7 +17,7 @@ export default function MobileStickyAd() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (!pubId || pushed.current) return;
+    if (!pubId || !hasConsent || pushed.current) return;
     const el = insRef.current;
     if (!el) return;
     const observer = new ResizeObserver((entries) => {
@@ -29,9 +31,9 @@ export default function MobileStickyAd() {
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [pubId]);
+  }, [pubId, hasConsent]);
 
-  if (!pubId || !slot || dismissed) return null;
+  if (!pubId || !hasConsent || !slot || dismissed) return null;
 
   return (
     /* Sits above the bottom nav (bottom-16 = 64px) */

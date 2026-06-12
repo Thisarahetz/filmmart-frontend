@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useConsent } from '@/components/features/legal/ConsentContext';
 
 interface Props {
   slot: string;
@@ -14,12 +15,13 @@ declare global {
 }
 
 export default function AdBanner({ slot, format = 'auto', className = '', showOnMobile = false }: Props) {
+  const { hasConsent } = useConsent();
   const pubId  = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID;
   const insRef = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
 
   useEffect(() => {
-    if (!pubId || pushed.current) return;
+    if (!pubId || !hasConsent || pushed.current) return;
     const el = insRef.current;
     if (!el) return;
     const observer = new ResizeObserver((entries) => {
@@ -33,9 +35,9 @@ export default function AdBanner({ slot, format = 'auto', className = '', showOn
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [pubId]);
+  }, [pubId, hasConsent]);
 
-  if (!pubId) return null; // no placeholder — don't waste space
+  if (!pubId || !hasConsent) return null; // no ad markup before consent
 
   const mobileClass = showOnMobile ? '' : 'hidden sm:block';
 

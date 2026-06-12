@@ -4,8 +4,15 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, Loader2, Film, Tv, Gamepad2, ChevronDown } from 'lucide-react';
+import { Search, Loader2, Film, Tv, Gamepad2, ChevronDown, Clock, X } from 'lucide-react';
 import type { Movie, Game } from '@/types';
+import { trackView, trackGameView } from '@/lib/utils/trackView';
+import {
+  getRecentSearches,
+  addRecentSearch,
+  removeRecentSearch,
+  clearRecentSearches,
+} from '@/lib/utils/recentSearches';
 
 const PLACEHOLDER = 'https://i.ibb.co/FHShpGv/58-589476-official-venom-movie-poster.jpg';
 const DEBOUNCE_MS = 300;
@@ -23,7 +30,20 @@ export default function SearchBox() {
   const [loading,  setLoading]  = useState(false);
   const [open,     setOpen]     = useState(false);
   const [dropOpen, setDropOpen] = useState(false);
+  const [focused,  setFocused]  = useState(false);
+  const [recent,   setRecent]   = useState<string[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Load recent searches on mount.
+  useEffect(() => { setRecent(getRecentSearches()); }, []);
+
+  function saveRecent(q: string) {
+    addRecentSearch(q);
+    setRecent(getRecentSearches());
+  }
+
+  // Show the recent-searches dropdown when the box is focused and empty.
+  const showRecent = focused && query.trim().length === 0 && recent.length > 0;
 
   const fetchResults = useCallback(async (q: string, cat: Category) => {
     if (q.trim().length < 1) { setResults([]); setOpen(false); return; }
@@ -44,12 +64,13 @@ export default function SearchBox() {
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [query, category, fetchResults]);
 
-  /* Close on outside click */
+  /* Close everything on outside click */
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
         setDropOpen(false);
+        setFocused(false);
       }
     }
     document.addEventListener('mousedown', handler);
@@ -60,7 +81,9 @@ export default function SearchBox() {
     e.preventDefault();
     const q = query.trim();
     if (!q) return;
+    saveRecent(q);
     setOpen(false);
+    setFocused(false);
     const url = category === 'games'
       ? `/search?q=${encodeURIComponent(q)}&type=game`
       : `/search?q=${encodeURIComponent(q)}`;
@@ -68,10 +91,47 @@ export default function SearchBox() {
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Escape') { setOpen(false); inputRef.current?.blur(); }
+    if (e.key === 'Escape') { setOpen(false); setFocused(false); inputRef.current?.blur(); }
   }
 
-  function handleResultClick() { setOpen(false); setQuery(''); }
+  // Clicking a live result: record the view, remember the query, then close.
+  function handleResultClick(result: Movie | Game) {
+    if (isGame(result)) trackGameView(result._id);
+    else trackView(result._id);
+    if (query.trim()) saveRecent(query);
+    setOpen(false);
+    setFocused(false);
+    setQuery('');
+  }
+
+  function handleSeeAllClick() {
+    if (query.trim()) saveRecent(query);
+    setOpen(false);
+    setFocused(false);
+  }
+
+  // Clicking into the input: close the category menu; show recent if empty.
+  function handleInputFocus() {
+    setDropOpen(false);
+    setFocused(true);
+  }
+
+  function pickRecent(term: string) {
+    setQuery(term);
+    setFocused(true);
+    inputRef.current?.focus();
+    fetchResults(term, category);
+  }
+
+  function deleteRecent(e: React.MouseEvent, term: string) {
+    e.preventDefault();
+    e.stopPropagation();
+    setRecent(removeRecentSearch(term));
+  }
+
+  function clearRecent() {
+    setRecent(clearRecentSearches());
+  }
 
   function selectCategory(cat: Category) {
     setCategory(cat);
@@ -149,6 +209,8 @@ export default function SearchBox() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
+          onFocus={handleInputFocus}
+          onClick={handleInputFocus}
           autoComplete="off"
           className="bg-transparent text-black placeholder:text-black/50 text-sm outline-none w-36 sm:w-44 md:w-60 lg:w-80 px-2"
         />
@@ -160,6 +222,46 @@ export default function SearchBox() {
             </button>
         }
       </form>
+
+      {/* Recent searches — shown when focused with an empty box */}
+      {showRecent && !open && (
+        <div className="absolute top-full mt-1.5 left-0 right-0 min-w-[320px] bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden z-50">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-800">
+            <span className="text-zinc-500 text-[11px] font-semibold uppercase tracking-wider">
+              Recent searches
+            </span>
+            <button
+              type="button"
+              onClick={clearRecent}
+              className="text-zinc-500 hover:text-white text-[11px] transition-colors"
+            >
+              Clear all
+            </button>
+          </div>
+          <ul role="listbox" aria-label="Recent searches">
+            {recent.map((term) => (
+              <li key={term} role="option" aria-selected="false">
+                <button
+                  type="button"
+                  onClick={() => pickRecent(term)}
+                  className="group w-full flex items-center gap-3 px-3 py-2.5 hover:bg-zinc-800 transition-colors text-left"
+                >
+                  <Clock size={14} className="text-zinc-500 shrink-0" aria-hidden="true" />
+                  <span className="flex-1 min-w-0 truncate text-zinc-200 text-sm">{term}</span>
+                  <span
+                    role="button"
+                    aria-label={`Remove ${term}`}
+                    onClick={(e) => deleteRecent(e, term)}
+                    className="shrink-0 text-zinc-600 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X size={13} aria-hidden="true" />
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Live dropdown */}
       {open && (
@@ -177,7 +279,7 @@ export default function SearchBox() {
                     <li key={result._id} role="option" aria-selected="false">
                       <Link
                         href={game ? `/games/${result._id}` : `/movies/${result._id}`}
-                        onClick={handleResultClick}
+                        onClick={() => handleResultClick(result)}
                         className="flex items-center gap-3 px-3 py-2.5 hover:bg-zinc-800 transition-colors"
                       >
                         <div className="relative w-9 h-[54px] rounded shrink-0 overflow-hidden bg-zinc-800">
@@ -235,7 +337,7 @@ export default function SearchBox() {
                 href={category === 'games'
                   ? `/search?q=${encodeURIComponent(query)}&type=game`
                   : `/search?q=${encodeURIComponent(query)}`}
-                onClick={handleResultClick}
+                onClick={handleSeeAllClick}
                 className="flex items-center justify-center gap-2 px-4 py-2.5 border-t border-zinc-800 text-yellow-400 hover:bg-zinc-800 text-xs font-semibold transition-colors"
               >
                 <Search size={12} aria-hidden="true" />

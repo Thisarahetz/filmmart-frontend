@@ -11,7 +11,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "sync:tmdb": "tsx scripts/sync-tmdb.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",

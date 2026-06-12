@@ -1,3 +1,5 @@
+import type { WatchProvidersByRegion } from '@/lib/tmdb';
+
 export interface Movie {
   _id: string;
   title: string;
@@ -21,6 +23,9 @@ export interface Movie {
   style?: string;
   plot?: string;
   sourceUrl?: string;
+  tmdbId?: number;
+  watchProviders?: WatchProvidersByRegion;
+  tmdbSyncedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

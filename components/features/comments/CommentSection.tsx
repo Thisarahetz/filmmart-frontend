@@ -556,7 +556,39 @@ function CommentItem({
 
 /* ── Section ────────────────────────────────────────────────────────────── */
 
-export default function CommentSection({ contentType, contentId, currentUserId, currentUsername, isAdmin }: Props) {
+export default function CommentSection({
+  contentType,
+  contentId,
+  currentUserId: propUserId,
+  currentUsername: propUsername,
+  isAdmin: propIsAdmin,
+}: Props) {
+  // When the server doesn't pass auth (so the page can be statically rendered),
+  // resolve the current user client-side from /api/auth/me.
+  const [auth, setAuth] = useState<{ id?: string; username?: string; isAdmin?: boolean }>({
+    id: propUserId,
+    username: propUsername,
+    isAdmin: propIsAdmin,
+  });
+
+  useEffect(() => {
+    if (propUserId !== undefined) return; // server already provided it
+    let active = true;
+    fetch('/api/auth/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (active && d) setAuth({ id: d.id, username: d.username, isAdmin: d.isAdmin });
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [propUserId]);
+
+  const currentUserId = auth.id;
+  const currentUsername = auth.username;
+  const isAdmin = auth.isAdmin;
+
   const [comments, setComments] = useState<Comment[]>([]);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
